@@ -1,0 +1,788 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Merchant {
+  id        String   @id @default(uuid())
+  name      String
+  logo      String?
+  domain    String?
+  category  String?
+  currency  String   @default("INR")
+  timezone  String   @default("Asia/Kolkata")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stores    Store[]
+  users     User[]
+  recoveryPolicy MerchantRecoveryPolicy?
+  recoveryFeedbacks MerchantRecoveryFeedback[]
+  preferences MerchantRecoveryPreference[]
+}
+
+model Store {
+  id             String   @id @default(uuid())
+  merchantId     String
+  name           String
+  domain         String?
+  logo           String?
+  category       String?
+  productUrlBase String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  customers Customer[]
+  products  Product[]
+  carts     Cart[]
+  orders    Order[]
+  checkoutSessions CheckoutSession[]
+  paymentLinks     PaymentLink[]
+  recoveryCases    RecoveryCase[]
+  vouchers         Voucher[]
+  recoveryMemories RecoveryMemory[]
+  recoveryInsights RecoveryInsight[]
+  revenueLeaks     RevenueLeak[]
+  experiments      RecoveryExperiment[]
+
+  @@index([merchantId])
+}
+
+model User {
+  id         String   @id @default(uuid())
+  merchantId String
+  name       String
+  email      String   @unique
+  password   String // Hashed password
+  role       String   @default("MEMBER") // OWNER, ADMIN, MEMBER
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@index([merchantId])
+}
+
+model Customer {
+  id                 String   @id @default(uuid())
+  storeId            String
+  externalCustomerId String?
+  name               String?
+  email              String?
+  phone              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  store            Store             @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  carts            Cart[]
+  orders           Order[]
+  checkoutSessions CheckoutSession[]
+  recoveryCases    RecoveryCase[]
+  voucherRedemptions VoucherRedemption[]
+  notifications    Notification[]
+
+  @@index([storeId])
+  @@index([email])
+  @@index([externalCustomerId])
+  @@unique([storeId, externalCustomerId])
+}
+
+model Product {
+  id              String   @id @default(uuid())
+  storeId         String
+  name            String
+  description     String?
+  imageUrl        String?
+  sku             String?
+  category        String?
+  price           Int      // Integer minor units
+  currency        String   @default("INR")
+  productUrl      String?
+  inventoryStatus String   @default("UNKNOWN") // IN_STOCK, LOW_STOCK, OUT_OF_STOCK, UNKNOWN
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  store       Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+
+  @@index([storeId])
+  @@index([sku])
+  @@index([category])
+  @@unique([storeId, sku])
+}
+
+model Cart {
+  id         String   @id @default(uuid())
+  storeId    String
+  customerId String?
+  status     String   @default("ACTIVE") // ACTIVE, ABANDONED, CONVERTED, EXPIRED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  store            Store             @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  customer         Customer?         @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  items            CartItem[]
+  checkoutSessions CheckoutSession[]
+
+  @@index([storeId])
+  @@index([customerId])
+  @@index([status])
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  cartId    String
+  productId String
+  quantity  Int
+  unitPrice Int      // Integer minor units
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([cartId])
+}
+
+model Order {
+  id              String   @id @default(uuid())
+  storeId         String
+  customerId      String
+  externalOrderId String?
+  razorpayOrderId String?  @unique
+  status          String   @default("CREATED") // CREATED, PAYMENT_PENDING, PAID, FAILED, CANCELLED, REFUNDED
+  subtotal        Int      // Integer minor units
+  discount        Int      @default(0)
+  tax             Int      @default(0)
+  shipping        Int      @default(0)
+  total           Int
+  currency        String   @default("INR")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  store            Store             @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  customer         Customer          @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  items            OrderItem[]
+  payments         Payment[]
+  checkoutSessions CheckoutSession[]
+  paymentLinks     PaymentLink[]
+  recoveryCases    RecoveryCase[]
+  voucherRedemptions VoucherRedemption[]
+
+  @@index([storeId])
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([externalOrderId])
+  @@unique([storeId, externalOrderId])
+}
+
+model OrderItem {
+  id                   String   @id @default(uuid())
+  orderId              String
+  productId            String
+  productNameSnapshot  String
+  productImageSnapshot String?
+  quantity             Int
+  unitPrice            Int      // Integer minor units
+  discount             Int      @default(0)
+  tax                  Int      @default(0)
+  createdAt            DateTime @default(now())
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+}
+
+model CheckoutSession {
+  id             String    @id @default(uuid())
+  storeId        String
+  customerId     String?
+  cartId         String?
+  orderId        String?
+  status         String    @default("ACTIVE") // ACTIVE, ABANDONED, PAYMENT_FAILED, COMPLETED, EXPIRED
+  startedAt      DateTime  @default(now())
+  lastActivityAt DateTime  @default(now())
+  completedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  store    Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  customer Customer?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  cart     Cart?           @relation(fields: [cartId], references: [id], onDelete: SetNull)
+  order    Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  events   CheckoutEvent[]
+  recoveryCases RecoveryCase[]
+
+  @@index([storeId])
+  @@index([customerId])
+  @@index([orderId])
+  @@index([status])
+}
+
+model CheckoutEvent {
+  id                String   @id @default(uuid())
+  checkoutSessionId String
+  eventType         String // PRODUCT_VIEWED, ADDED_TO_CART, CHECKOUT_STARTED, DETAILS_COMPLETED, ADDRESS_COMPLETED, PAYMENT_METHOD_SELECTED, PAYMENT_ATTEMPTED, PAYMENT_FAILED, PAYMENT_COMPLETED, CHECKOUT_ABANDONED
+  timestamp         DateTime @default(now())
+  metadata          String? // JSON
+  createdAt         DateTime @default(now())
+
+  checkoutSession CheckoutSession @relation(fields: [checkoutSessionId], references: [id], onDelete: Cascade)
+
+  @@index([checkoutSessionId])
+  @@index([eventType])
+  @@index([timestamp])
+}
+
+model Payment {
+  id                String   @id @default(uuid())
+  orderId           String
+  razorpayPaymentId String?
+  amount            Int      // Integer minor units
+  currency          String   @default("INR")
+  method            String   @default("UNKNOWN") // UPI, CARD, NETBANKING, WALLET, OTHER, UNKNOWN
+  status            String   @default("CREATED") // CREATED, AUTHORIZED, CAPTURED, FAILED, REFUNDED, VOIDED
+  failureCode       String?
+  failureReason     String?
+  attemptNumber     Int      @default(1)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([razorpayPaymentId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model PaymentLink {
+  id                    String    @id @default(uuid())
+  storeId               String
+  orderId               String
+  razorpayPaymentLinkId String?   @unique
+  shortUrl              String?
+  amount                Int
+  currency              String    @default("INR")
+  status                String    @default("CREATED") // CREATED, PAID, PARTIALLY_PAID, CANCELLED, EXPIRED
+  expiresAt             DateTime?
+  providerMetadata      String?   // JSON
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([storeId])
+  @@index([orderId])
+  @@index([razorpayPaymentLinkId])
+}
+
+model WebhookEvent {
+  id                String    @id @default(uuid())
+  provider          String    @default("RAZORPAY")
+  providerEventId   String
+  eventType         String
+  payload           String    // JSON
+  signatureVerified Boolean   @default(false)
+  processingStatus  String    @default("PENDING") // PENDING, PROCESSED, FAILED, IGNORED
+  errorMessage      String?
+  receivedAt        DateTime  @default(now())
+  processedAt       DateTime?
+
+  @@unique([provider, providerEventId])
+  @@index([processingStatus])
+}
+
+model RecoveryCase {
+  id                    String   @id @default(uuid())
+  storeId               String
+  customerId            String
+  orderId               String
+  checkoutSessionId     String?
+  riskAmount            Int
+  riskReason            String   // PAYMENT_FAILED, CHECKOUT_ABANDONED
+  riskType              String
+  recoveryProbability   Float?
+  opportunityScore      Int?
+  status                String   @default("DETECTED") // DETECTED, ANALYZING, ACTION_READY, AWAITING_APPROVAL, RECOVERING, RECOVERED, PARTIALLY_RECOVERED, FAILED, STOPPED, EXPIRED, ESCALATED
+  experimentAssignmentId String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  resolvedAt            DateTime?
+
+  store           Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  customer        Customer         @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  order           Order            @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  checkoutSession CheckoutSession? @relation(fields: [checkoutSessionId], references: [id], onDelete: SetNull)
+  aiDecisions     AIDecision[]
+  auditEvents     AuditEvent[]
+  policyEvaluations PolicyEvaluation[]
+  approvalRequests ApprovalRequest[]
+  recoveryPlans   RecoveryPlan[]
+  recoveryActions RecoveryAction[]
+  recoveryOutcome RecoveryOutcome?
+  notifications   Notification[]
+  experimentAssignment RecoveryExperimentArm? @relation(fields: [experimentAssignmentId], references: [id], onDelete: SetNull)
+
+  @@unique([storeId, orderId, riskReason]) // Idempotency
+  @@index([storeId])
+  @@index([status])
+  @@index([experimentAssignmentId])
+}
+
+model AIDecision {
+  id                  String   @id @default(uuid())
+  recoveryCaseId      String
+  diagnosis           String
+  confidence          Float
+  recoveryProbability Float
+  recommendedAction   String
+  reason              String
+  modelVersion        String
+  createdAt           DateTime @default(now())
+
+  recoveryCase    RecoveryCase     @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  recoveryOptions RecoveryOption[]
+  policyEvaluations PolicyEvaluation[]
+  approvalRequests ApprovalRequest[]
+}
+
+model RecoveryOption {
+  id                     String   @id @default(uuid())
+  aiDecisionId           String
+  actionType             String   // NO_ACTION, PAYMENT_LINK, RETRY, MESSAGE, PAYMENT_LINK_WITH_VOUCHER
+  predictedProbability   Float
+  predictedGrossRecovery Int
+  predictedIncentiveCost Int
+  predictedNetRecovery   Int
+  selected               Boolean  @default(false)
+  reason                 String
+
+  aiDecision AIDecision @relation(fields: [aiDecisionId], references: [id], onDelete: Cascade)
+}
+
+model AuditEvent {
+  id             String   @id @default(uuid())
+  recoveryCaseId String?
+  actor          String   // SYSTEM, AI, RAZORPAY, MERCHANT, CUSTOMER
+  action         String
+  metadata       String?  // JSON
+  createdAt      DateTime @default(now())
+
+  recoveryCase   RecoveryCase? @relation(fields: [recoveryCaseId], references: [id], onDelete: SetNull)
+  
+  @@index([recoveryCaseId])
+  @@index([createdAt])
+}
+
+model MerchantRecoveryPolicy {
+  id                             String   @id @default(uuid())
+  merchantId                     String   @unique
+  maximumAutomaticRecoveryAmount Int      @default(1000000) // 10,000 INR in minor units
+  maximumDiscountPercent         Int      @default(10)
+  maximumDiscountAmount          Int      @default(50000) // 500 INR in minor units
+  maximumContacts                Int      @default(2)
+  recoveryWindowHours            Int      @default(24)
+  highValueApprovalRequired      Boolean  @default(true)
+  automaticRecoveryEnabled       Boolean  @default(true)
+  createdAt                      DateTime @default(now())
+  updatedAt                      DateTime @updatedAt
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+}
+
+model PolicyEvaluation {
+  id               String   @id @default(uuid())
+  recoveryCaseId   String
+  decisionId       String?
+  allowed          Boolean
+  approvalRequired Boolean
+  reason           String
+  violatedRules    String   // JSON
+  evaluatedAt      DateTime @default(now())
+
+  recoveryCase RecoveryCase @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  decision     AIDecision?  @relation(fields: [decisionId], references: [id], onDelete: SetNull)
+}
+
+model ApprovalRequest {
+  id             String    @id @default(uuid())
+  recoveryCaseId String
+  requestedBy    String    // SYSTEM
+  status         String    @default("PENDING") // PENDING, APPROVED, REJECTED, EXPIRED, CANCELLED
+  reason         String
+  decisionId     String?
+  createdAt      DateTime  @default(now())
+  resolvedAt     DateTime?
+  resolvedBy     String?   // User ID
+
+  recoveryCase RecoveryCase @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  decision     AIDecision?  @relation(fields: [decisionId], references: [id], onDelete: SetNull)
+
+  @@index([recoveryCaseId])
+  @@index([status])
+}
+
+model RecoveryPlan {
+  id             String    @id @default(uuid())
+  recoveryCaseId String
+  status         String    @default("DRAFT") // DRAFT, READY, RUNNING, WAITING, COMPLETED, STOPPED, FAILED, EXPIRED
+  createdAt      DateTime  @default(now())
+  startedAt      DateTime?
+  completedAt    DateTime?
+  cancelledAt    DateTime?
+
+  recoveryCase RecoveryCase       @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  steps        RecoveryPlanStep[]
+
+  @@index([recoveryCaseId])
+  @@index([status])
+}
+
+model RecoveryPlanStep {
+  id             String    @id @default(uuid())
+  recoveryPlanId String
+  stepNumber     Int
+  actionType     String    // PAYMENT_LINK, WAIT, MESSAGE, CHECK_STATUS
+  delaySeconds   Int       @default(0)
+  status         String    @default("PENDING") // PENDING, WAITING, RUNNING, COMPLETED, SKIPPED, FAILED, CANCELLED
+  scheduledAt    DateTime?
+  executedAt     DateTime?
+  completedAt    DateTime?
+  failureReason  String?
+  metadata       String?   // JSON
+  createdAt      DateTime  @default(now())
+
+  plan            RecoveryPlan     @relation(fields: [recoveryPlanId], references: [id], onDelete: Cascade)
+  recoveryActions RecoveryAction[]
+
+  @@index([recoveryPlanId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model RecoveryAction {
+  id                String    @id @default(uuid())
+  recoveryCaseId    String
+  planStepId        String?
+  type              String    // PAYMENT_LINK, RETRY, MESSAGE, VOUCHER, ESCALATION, STOP
+  status            String    @default("PENDING") // PENDING, RUNNING, COMPLETED, FAILED, SKIPPED, CANCELLED
+  provider          String    @default("SYSTEM") // RAZORPAY, SIMULATION, SYSTEM
+  providerReference String?
+  createdAt         DateTime  @default(now())
+  executedAt        DateTime?
+  completedAt       DateTime?
+  failureReason     String?
+  metadata          String?   // JSON
+
+  recoveryCase RecoveryCase      @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  planStep     RecoveryPlanStep? @relation(fields: [planStepId], references: [id], onDelete: SetNull)
+
+  @@index([recoveryCaseId])
+  @@index([planStepId])
+}
+
+model RecoveryOutcome {
+  id              String   @id @default(uuid())
+  recoveryCaseId  String   @unique
+  result          String   // RECOVERED, PARTIALLY_RECOVERED, FAILED, STOPPED, EXPIRED
+  grossRecovered  Int
+  incentiveCost   Int
+  netRecovered    Int
+  timeToRecovery  Int?     // Duration in seconds
+  paymentId       String?
+  recordedAt      DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  recoveryCase RecoveryCase @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+}
+
+model Voucher {
+  id                 String    @id @default(uuid())
+  storeId            String
+  code               String
+  discountType       String    // PERCENTAGE, FIXED
+  discountValue      Int
+  maximumDiscount    Int?
+  minimumOrderValue  Int?
+  expiresAt          DateTime?
+  usageLimit         Int?
+  usagePerCustomer   Int       @default(1)
+  status             String    @default("ACTIVE") // ACTIVE, PAUSED, EXPIRED, EXHAUSTED, DISABLED
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  redemptions VoucherRedemption[]
+  
+  @@index([storeId])
+  @@index([code])
+}
+
+model VoucherRedemption {
+  id              String   @id @default(uuid())
+  voucherId       String
+  customerId      String
+  orderId         String
+  recoveryCaseId  String?
+  discountAmount  Int
+  redeemedAt      DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  voucher Voucher @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  
+  @@unique([voucherId, orderId])
+}
+
+model Notification {
+  id                String   @id @default(uuid())
+  recoveryCaseId    String
+  customerId        String
+  channel           String   // EMAIL, SMS, WHATSAPP, IN_APP, SIMULATED
+  templateId        String?
+  message           String
+  status            String   @default("QUEUED") // QUEUED, SENDING, SENT, DELIVERED, FAILED, SIMULATED, CANCELLED
+  provider          String
+  providerMessageId String?
+  deliveryStatus    String   @default("UNKNOWN") // UNKNOWN, SENT, DELIVERED, FAILED, NOT_APPLICABLE
+  createdAt         DateTime @default(now())
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  failedAt          DateTime?
+  failureReason     String?
+
+  recoveryCase RecoveryCase @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model RecoveryLearningEvent {
+  id              String   @id @default(uuid())
+  recoveryCaseId  String
+  storeId         String
+  customerSegment String?
+  productId       String?
+  productCategory String?
+  paymentMethod   String?
+  failureType     String?
+  intervention    String?
+  usedIncentive   Boolean  @default(false)
+  incentiveCost   Int      @default(0)
+  grossRecovered  Int      @default(0)
+  netRecovered    Int      @default(0)
+  recoveryTime    Int?
+  outcome         String
+  sourceType      String   @default("NORMAL") // NORMAL, EXPERIMENT
+  sourceExperimentId String?
+  createdAt       DateTime @default(now())
+}
+
+model RecoveryMemory {
+  id                   String   @id @default(uuid())
+  storeId              String
+  segmentType          String   // CUSTOMER, PRODUCT, PAYMENT_METHOD, FAILURE_TYPE, CONTEXT
+  segmentKey           String
+  intervention         String
+  sampleSize           Int      @default(0)
+  attempts             Int      @default(0)
+  recoveries           Int      @default(0)
+  recoveryRate         Float    @default(0)
+  averageRecoveryTime  Int?
+  averageIncentiveCost Int      @default(0)
+  grossRecovered       Int      @default(0)
+  netRecovered         Int      @default(0)
+  confidence           String   @default("UNKNOWN") // LOW, MEDIUM, HIGH, UNKNOWN
+  memoryVersion        Int      @default(1)
+  lastUpdated          DateTime @default(now())
+  createdAt            DateTime @default(now())
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  
+  @@unique([storeId, segmentType, segmentKey, intervention, memoryVersion])
+  @@index([storeId])
+}
+
+model MerchantRecoveryFeedback {
+  id                     String   @id @default(uuid())
+  merchantId             String
+  recoveryCaseId         String
+  originalRecommendation String
+  merchantAction         String   // APPROVED, REJECTED, EDITED, OVERRIDDEN, STOPPED
+  reason                 String?
+  createdAt              DateTime @default(now())
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+}
+
+model RecoveryInsight {
+  id          String   @id @default(uuid())
+  storeId     String
+  type        String   // INTERVENTION, PAYMENT_METHOD, PRODUCT, CUSTOMER_SEGMENT, TIMING, INCENTIVE, FAILURE_PATTERN
+  title       String
+  description String
+  evidence    String   // JSON
+  sampleSize  Int
+  confidence  String
+  priority    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model RevenueLeak {
+  id                          String    @id @default(uuid())
+  storeId                     String
+  type                        String    // PAYMENT_METHOD_DEGRADATION, CHECKOUT_ABANDONMENT_SPIKE, PAYMENT_FAILURE_SPIKE
+  severity                    String    // LOW, MEDIUM, HIGH, CRITICAL
+  status                      String    @default("ACTIVE") // ACTIVE, INVESTIGATING, MITIGATED, RESOLVED, DISMISSED
+  title                       String
+  description                 String
+  detectedAt                  DateTime  @default(now())
+  firstObservedAt             DateTime?
+  lastObservedAt              DateTime?
+  affectedRevenue             Int       @default(0) // Minor units
+  estimatedRecoverableRevenue Int       @default(0)
+  affectedTransactions        Int       @default(0)
+  confidence                  String    @default("MEDIUM")
+  evidence                    String    // JSON
+  recommendedAction           String?
+  resolvedAt                  DateTime?
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId])
+  @@index([status])
+}
+
+model RecoveryExperiment {
+  id                String    @id @default(uuid())
+  storeId           String
+  name              String
+  description       String
+  hypothesis        String
+  status            String    @default("DRAFT") // DRAFT, READY, RUNNING, PAUSED, COMPLETED, STOPPED, CANCELLED
+  experimentType    String    @default("A_B_TEST")
+  controlStrategy   String
+  variantStrategy   String
+  eligibilityRules  String    // JSON
+  sampleTarget      Int
+  successMetric     String    @default("NET_RECOVERED_REVENUE")
+  minimumSampleSize Int       @default(30)
+  confidenceLevel   Float     @default(0.95)
+  budgetLimit       Int?
+  currentSpend      Int       @default(0)
+  startAt           DateTime?
+  endAt             DateTime?
+  createdBy         String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  arms  RecoveryExperimentArm[]
+
+  @@index([storeId])
+  @@index([status])
+}
+
+model RecoveryExperimentArm {
+  id                   String    @id @default(uuid())
+  experimentId         String
+  name                 String
+  strategy             String
+  allocationPercentage Int       @default(50)
+  eligibleCount        Int       @default(0)
+  attemptCount         Int       @default(0)
+  recoveryCount        Int       @default(0)
+  grossRecovered       Int       @default(0)
+  incentiveCost        Int       @default(0)
+  netRecovered         Int       @default(0)
+  averageRecoveryTime  Int?
+
+  experiment RecoveryExperiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  assignedCases RecoveryCase[]
+
+  @@index([experimentId])
+}
+
+model MerchantRecoveryPreference {
+  id                 String   @id @default(uuid())
+  merchantId         String
+  scope              String   // CUSTOMER_SEGMENT, PRODUCT_CATEGORY, FAILURE_TYPE
+  condition          String   // e.g. RETURNING_CUSTOMER
+  preferredStrategy  String?  // PAYMENT_LINK
+  disallowedStrategy String?  // PAYMENT_LINK_WITH_VOUCHER
+  priority           Int      @default(0)
+  reason             String?
+  enabled            Boolean  @default(true)
+  createdBy          String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  merchant Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+
+  @@index([merchantId])
+}
+
+model CopilotConversation {
+  id         String   @id @default(uuid())
+  merchantId String
+  storeId    String
+  userId     String
+  title      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  messages   CopilotMessage[]
+
+  @@index([merchantId])
+  @@index([storeId])
+  @@index([userId])
+}
+
+model CopilotMessage {
+  id             String   @id @default(uuid())
+  conversationId String
+  role           String   // USER, ASSISTANT, SYSTEM
+  content        String
+  structuredData String?  // JSON
+  createdAt      DateTime @default(now())
+
+  conversation CopilotConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}
+
+model CopilotActionProposal {
+  id               String   @id @default(uuid())
+  merchantId       String
+  storeId          String
+  intent           String
+  entityType       String?
+  entityId         String?
+  requestedAction  String
+  parameters       String   // JSON
+  policyStatus     String
+  approvalRequired Boolean
+  riskLevel        String
+  status           String   @default("PROPOSED") // PROPOSED, AWAITING_APPROVAL, APPROVED, REJECTED, EXECUTED, EXPIRED, FAILED
+  createdAt        DateTime @default(now())
+  expiresAt        DateTime
+
+  @@index([merchantId])
+  @@index([storeId])
+  @@index([status])
+}
