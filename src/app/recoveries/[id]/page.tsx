@@ -98,8 +98,8 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
           ].map((item, idx, arr) => (
             <div key={idx} className="flex items-center gap-2 shrink-0">
               <div className={`p-2.5 rounded-xl border text-[11px] font-bold ${
-                item.failed ? "bg-zinc-100 text-black border-black border-2" :
-                item.done ? "bg-black text-white border-black" : "bg-zinc-50 text-zinc-400 border-zinc-200"
+                item.failed ? "bg-zinc-100 text-black border-zinc-800 border-2" :
+                item.done ? "bg-zinc-800 text-white border-zinc-700" : "bg-zinc-50 text-zinc-400 border-zinc-200"
               }`}>
                 <div>{item.step}</div>
                 <div className="text-[10px] font-normal opacity-90">{item.label}</div>
@@ -127,13 +127,13 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
 
       {/* PREDICTION VS REALITY VISUALIZATION (If completed) */}
       {outcome && (
-        <div className="bg-black text-white rounded-2xl p-6 shadow-md border border-zinc-800 space-y-6">
-          <div className="flex justify-between items-start border-b border-zinc-800 pb-4">
+        <div className="bg-zinc-800 text-zinc-100 rounded-2xl p-6 shadow-xs border border-zinc-700/80 space-y-6">
+          <div className="flex justify-between items-start border-b border-zinc-700/60 pb-4">
             <div>
-              <span className="bg-zinc-800 text-white text-xs px-2.5 py-0.5 rounded-full font-bold border border-zinc-700">
+              <span className="bg-zinc-700 text-zinc-200 text-xs px-2.5 py-0.5 rounded-full font-bold border border-zinc-600">
                 Verified Outcome Audit
               </span>
-              <h2 className="text-xl font-bold mt-1">Prediction vs Reality Analysis</h2>
+              <h2 className="text-xl font-bold mt-1 text-white">Prediction vs Reality Analysis</h2>
             </div>
             <div className="text-right">
               <span className="text-xs text-zinc-400 block uppercase tracking-wider font-bold">Net Recovered</span>
@@ -142,7 +142,7 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+            <div className="bg-zinc-900/60 p-4 rounded-xl border border-zinc-700/60">
               <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold block mb-1">AI Predicted Net</span>
               <span className="text-lg font-bold text-white">
                 ₹{recommendedOption ? (recommendedOption.predictedNetRecovery / 100).toLocaleString("en-IN") : "0"}
@@ -152,7 +152,7 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
               </span>
             </div>
 
-            <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+            <div className="bg-zinc-900/60 p-4 rounded-xl border border-zinc-700/60">
               <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold block mb-1">Actual Net Recovered</span>
               <span className="text-lg font-bold text-white">
                 ₹{(outcome.netRecovered / 100).toLocaleString("en-IN")}
@@ -162,7 +162,7 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
               </span>
             </div>
 
-            <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+            <div className="bg-zinc-900/60 p-4 rounded-xl border border-zinc-700/60">
               <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold block mb-1">Model Accuracy Variance</span>
               <span className="text-lg font-bold text-white">
                 {netDiff !== null && netDiff >= 0 ? `+₹${(netDiff / 100).toLocaleString("en-IN")}` : `-₹${(Math.abs(netDiff || 0) / 100).toLocaleString("en-IN")}`}
@@ -172,7 +172,7 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
               </span>
             </div>
 
-            <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+            <div className="bg-zinc-900/60 p-4 rounded-xl border border-zinc-700/60">
               <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold block mb-1">Time to Recovery</span>
               <span className="text-lg font-bold text-white">
                 {outcome.timeToRecovery ? `${Math.max(1, Math.floor(outcome.timeToRecovery / 60))} min` : "Instant"}
@@ -181,8 +181,8 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
             </div>
           </div>
 
-          <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-800 flex items-center gap-3 text-xs text-zinc-300">
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+          <div className="bg-zinc-900/60 p-4 rounded-xl border border-zinc-700/60 flex items-center gap-3 text-xs text-zinc-300">
+            <span className="w-2 h-2 rounded-full bg-zinc-300 animate-pulse"></span>
             <span>
               <strong>Learning Event Recorded:</strong> This verified outcome has updated Recovery Memory for strategy{" "}
               <code className="text-white font-bold">{decision?.recommendedAction}</code> on segment{" "}
@@ -204,7 +204,7 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
         <div className="relative border-l-2 border-zinc-200 ml-4 space-y-8 pl-6">
           {/* STEP 1: PAYMENT FAILED */}
           <div className="relative">
-            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold">
+            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-zinc-800 text-white flex items-center justify-center text-xs font-bold shadow-2xs">
               1
             </span>
             <div className="space-y-1">
@@ -223,7 +223,7 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
 
           {/* STEP 2: SIGNAL DETECTED */}
           <div className="relative">
-            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold">
+            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-zinc-800 text-white flex items-center justify-center text-xs font-bold shadow-2xs">
               2
             </span>
             <div className="space-y-1">
@@ -254,7 +254,7 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
 
           {/* STEP 3: AI DIAGNOSIS */}
           <div className="relative">
-            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold">
+            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-zinc-800 text-white flex items-center justify-center text-xs font-bold shadow-2xs">
               3
             </span>
             <div className="space-y-1">
@@ -273,7 +273,7 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
 
           {/* STEP 4: COUNTERFACTUAL ANALYSIS */}
           <div className="relative">
-            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold">
+            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-zinc-800 text-white flex items-center justify-center text-xs font-bold shadow-2xs">
               4
             </span>
             <div className="space-y-2">
@@ -287,14 +287,14 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
                       key={opt.id}
                       className={`p-3.5 rounded-xl border text-xs space-y-1.5 transition-all ${
                         opt.selected
-                          ? "bg-zinc-100 border-black shadow-xs"
+                          ? "bg-zinc-100 border-zinc-700 shadow-xs"
                           : "bg-zinc-50 border-zinc-200 opacity-75"
                       }`}
                     >
                       <div className="flex justify-between items-center">
                         <span className="font-bold text-black">{opt.actionType.replace(/_/g, " ")}</span>
                         {opt.selected && (
-                          <span className="bg-black text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                          <span className="bg-zinc-800 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
                             SELECTED
                           </span>
                         )}
@@ -326,7 +326,7 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
 
           {/* STEP 5: POLICY CHECK */}
           <div className="relative">
-            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold">
+            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-zinc-800 text-white flex items-center justify-center text-xs font-bold shadow-2xs">
               5
             </span>
             <div className="space-y-1">
@@ -335,7 +335,7 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
               {policy ? (
                 <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200 text-xs text-black space-y-1 max-w-2xl">
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-black"></span>
+                    <span className="w-2 h-2 rounded-full bg-zinc-700"></span>
                     <span className="font-bold">
                       {policy.allowed ? "Within Merchant Policy Governance" : "Requires Merchant Approval"}
                     </span>
@@ -350,7 +350,7 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
 
           {/* STEP 6: ACTION EXECUTION */}
           <div className="relative">
-            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold">
+            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-zinc-800 text-white flex items-center justify-center text-xs font-bold shadow-2xs">
               6
             </span>
             <div className="space-y-2">
@@ -362,7 +362,7 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
                     <div key={step.id} className="p-3 bg-zinc-50 rounded-xl border border-zinc-200 flex justify-between items-center text-xs">
                       <div className="flex items-center gap-2.5">
                         <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                          step.status === "COMPLETED" ? "bg-black text-white" : "bg-zinc-200 text-zinc-600"
+                          step.status === "COMPLETED" ? "bg-zinc-800 text-white" : "bg-zinc-200 text-zinc-600"
                         }`}>
                           {step.status === "COMPLETED" ? "✓" : idx + 1}
                         </span>
@@ -389,7 +389,7 @@ export default async function RecoveryDetailPage({ params }: { params: Promise<{
 
           {/* STEP 7: OUTCOME & LEARNING */}
           <div className="relative">
-            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold">
+            <span className="absolute -left-[31px] top-0.5 w-6 h-6 rounded-full bg-zinc-800 text-white flex items-center justify-center text-xs font-bold shadow-2xs">
               7
             </span>
             <div className="space-y-1">

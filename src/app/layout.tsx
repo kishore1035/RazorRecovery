@@ -33,6 +33,7 @@ export default async function RootLayout({
     }
   }
 
+  const isLiveMode = (process.env.RAZORPAY_KEY_ID || "").startsWith("rzp_live_");
   const storeName = primaryStore?.name ?? "Default Store";
   const userName = adminUser?.name ?? adminUser?.email?.split("@")[0] ?? "Admin";
   const userEmail = adminUser?.email ?? "";
@@ -64,7 +65,7 @@ export default async function RootLayout({
               {/* Real user identity from DB */}
               <div className="p-4 border-t border-zinc-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-zinc-800 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
                     {userInitials}
                   </div>
                   <div className="text-xs min-w-0">
@@ -80,15 +81,24 @@ export default async function RootLayout({
               <header className="h-16 border-b border-zinc-200 bg-white flex items-center px-8 justify-between shrink-0">
                 <div className="flex items-center gap-3">
                   <h1 className="text-sm font-bold text-black">RazorRecovery Control Plane</h1>
-                  <span className="text-[10px] px-2.5 py-0.5 rounded font-bold bg-zinc-100 text-black border border-zinc-300 uppercase tracking-wider">Razorpay Test Mode</span>
+                  {isLiveMode ? (
+                    <span className="text-[10px] px-2.5 py-0.5 rounded font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 uppercase tracking-wider flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                      Razorpay Live Mode
+                    </span>
+                  ) : (
+                    <span className="text-[10px] px-2.5 py-0.5 rounded font-bold bg-zinc-100 text-black border border-zinc-300 uppercase tracking-wider">
+                      Razorpay Test Mode
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="inline-flex items-center gap-1.5 text-xs font-bold text-black bg-zinc-100 px-3 py-1 rounded-full border border-zinc-300">
-                    <span className="w-1.5 h-1.5 rounded-full bg-black animate-pulse"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse"></span>
                     Webhook Listener Active
                   </span>
-                  <a href="/demo" className="text-xs font-bold bg-black text-white px-3.5 py-1.5 rounded-lg hover:bg-zinc-800 transition-colors shadow-2xs">
-                    + Test Checkout
+                  <a href="/payment-links/new" className="text-xs font-bold bg-zinc-800 text-white px-3.5 py-1.5 rounded-lg hover:bg-zinc-700 transition-colors shadow-2xs">
+                    + Create Payment Link
                   </a>
                 </div>
               </header>

@@ -1,8 +1,11 @@
 import { prisma } from "@/lib/db";
 import { withTenant } from "@/lib/auth";
+import { RazorpayService } from "@/lib/razorpay";
 import Link from "next/link";
 
 export default async function RecoveriesPage() {
+  await RazorpayService.syncLiveTransactions();
+
   const data = await withTenant(async (merchantId) => {
     const stores = await prisma.store.findMany({ where: { merchantId }, select: { id: true, name: true } });
     const storeIds = stores.map(s => s.id);
@@ -55,28 +58,28 @@ export default async function RecoveriesPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-12 font-sans">
-      {/* Top Banner Header (Black & White) */}
-      <div className="bg-black text-white p-6 rounded-2xl border border-zinc-800 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      {/* Top Banner Header (Soft Charcoal / Light Black) */}
+      <div className="bg-zinc-800 text-zinc-100 p-6 rounded-2xl border border-zinc-700/80 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="bg-zinc-800 text-white text-xs px-2.5 py-0.5 rounded-full font-bold border border-zinc-700">
+            <span className="bg-zinc-700 text-zinc-200 text-xs px-2.5 py-0.5 rounded-full font-bold border border-zinc-600">
               Opportunity Queue
             </span>
             <span className="text-xs text-zinc-400">Sorted by Expected Net Recovery</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight mt-1">Revenue at Risk</h1>
+          <h1 className="text-2xl font-bold tracking-tight mt-1 text-white">Revenue at Risk</h1>
           <p className="text-xs text-zinc-300 mt-0.5">
             Prioritized recovery opportunities evaluated by AI counterfactual net ROI
           </p>
         </div>
 
-        <div className="flex items-center gap-6 bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+        <div className="flex items-center gap-6 bg-zinc-900/60 p-4 rounded-xl border border-zinc-700/60">
           <div>
             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Currently at Risk</span>
             <p className="text-2xl font-bold text-white">₹{(data.totalRiskAmount / 100).toLocaleString("en-IN")}</p>
             <p className="text-[11px] text-zinc-400">{data.activeCount} active cases</p>
           </div>
-          <div className="h-8 w-px bg-zinc-800"></div>
+          <div className="h-8 w-px bg-zinc-700"></div>
           <div>
             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Appears Recoverable</span>
             <p className="text-2xl font-bold text-white">₹{(data.totalRecoverableAmount / 100).toLocaleString("en-IN")}</p>
@@ -93,10 +96,10 @@ export default async function RecoveriesPage() {
           </div>
           <h3 className="text-base font-bold text-black">No revenue currently at risk</h3>
           <p className="text-xs text-zinc-500 max-w-md mx-auto">
-            All checkout attempts are healthy or already recovered. Launch a test checkout simulation to test opportunity queue processing.
+            All checkout attempts are healthy or already recovered. Create a payment link and simulate a failure to test opportunity queue processing.
           </p>
-          <Link href="/demo" className="inline-block bg-black text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-zinc-800 transition-colors">
-            + Run Test Checkout
+          <Link href="/payment-links/new" className="inline-block bg-zinc-800 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-zinc-700 transition-colors">
+            + Create Payment Link
           </Link>
         </div>
       ) : (
@@ -115,7 +118,7 @@ export default async function RecoveriesPage() {
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-zinc-200 pb-4">
                   <div>
                     <div className="flex items-center gap-3">
-                      <span className="bg-black text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                      <span className="bg-zinc-800 text-zinc-100 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
                         {rec.riskReason === "CHECKOUT_ABANDONMENT" ? "Checkout Drop-off" : "Payment Failure"}
                       </span>
                       <h3 className="text-lg font-bold text-black">{rec.customer.name || "Guest Customer"}</h3>
@@ -156,7 +159,7 @@ export default async function RecoveriesPage() {
                     <div className="flex items-center gap-2 mt-1">
                       <div className="w-16 h-2 bg-zinc-200 rounded-full overflow-hidden border border-zinc-300">
                         <div
-                          className="h-full bg-black"
+                          className="h-full bg-zinc-700"
                           style={{ width: `${rec.opportunityScore || 50}%` }}
                         ></div>
                       </div>
@@ -178,7 +181,7 @@ export default async function RecoveriesPage() {
                   </span>
                   <Link
                     href={`/recoveries/${rec.id}`}
-                    className="shrink-0 bg-black text-white font-bold px-4 py-2 rounded-xl hover:bg-zinc-800 transition-colors shadow-2xs"
+                    className="shrink-0 bg-zinc-800 text-white font-bold px-4 py-2 rounded-xl hover:bg-zinc-700 transition-colors shadow-2xs"
                   >
                     Review Agent Journey →
                   </Link>

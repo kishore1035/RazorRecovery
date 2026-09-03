@@ -56,7 +56,7 @@ export function RecoveryActionControls({
           <button
             disabled={loading}
             onClick={() => handleAction("EXECUTE")}
-            className="bg-black text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-zinc-800 disabled:opacity-50 transition-colors shadow-2xs"
+            className="bg-zinc-800 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-zinc-700 disabled:opacity-50 transition-colors shadow-2xs border border-zinc-700"
           >
             {loading ? "Processing..." : "▶ Step 8: Execute Action"}
           </button>
@@ -66,7 +66,7 @@ export function RecoveryActionControls({
           <button
             disabled={loading}
             onClick={() => handleAction("CONFIRM_PAYMENT")}
-            className="bg-black text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-zinc-800 disabled:opacity-50 transition-colors shadow-2xs border border-black"
+            className="bg-zinc-800 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-zinc-700 disabled:opacity-50 transition-colors shadow-2xs border border-zinc-700"
           >
             {loading ? "Confirming..." : "✓ Step 9: Confirm Payment"}
           </button>

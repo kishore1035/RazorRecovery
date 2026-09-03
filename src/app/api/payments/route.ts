@@ -1,10 +1,22 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { withTenant } from "@/lib/auth";
+import { RazorpayService } from "@/lib/razorpay";
+
+let lastSyncTime = 0;
+const SYNC_COOLDOWN_MS = 2500;
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
+    const forceSync = searchParams.get("sync") === "true";
+    const now = Date.now();
+
+    if (forceSync || (now - lastSyncTime > SYNC_COOLDOWN_MS)) {
+      lastSyncTime = now;
+      await RazorpayService.syncLiveTransactions();
+    }
+
     const tab = searchParams.get("tab") || "all";
     const statusFilter = searchParams.get("status") || "ALL";
     const methodFilter = searchParams.get("method") || "ALL";
@@ -169,6 +181,7 @@ export async function GET(req: Request) {
         payments: formatted,
         counts: tabCounts,
         total: formatted.length,
+        isLive: RazorpayService.isLiveMode(),
       };
     });
 

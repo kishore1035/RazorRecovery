@@ -37,17 +37,17 @@ export default function CopilotPage() {
 
   return (
     <div className="max-w-4xl mx-auto h-[calc(100vh-8rem)] flex flex-col bg-white rounded-2xl shadow-xs border border-zinc-200 overflow-hidden font-sans">
-      {/* Header (Black & White) */}
-      <div className="px-6 py-4 border-b border-zinc-800 bg-black text-white flex justify-between items-center">
+      {/* Header (Soft Charcoal / Light Black) */}
+      <div className="px-6 py-4 border-b border-zinc-700/60 bg-zinc-800 text-zinc-100 flex justify-between items-center">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-zinc-300 animate-pulse"></span>
             <h1 className="text-base font-bold text-white">Ask RazorRecovery Copilot</h1>
           </div>
           <p className="text-xs text-zinc-400 mt-0.5">Context-Aware Financial Intelligence Agent</p>
         </div>
         <button
-          className="text-xs font-bold text-black bg-white hover:bg-zinc-200 px-3 py-1.5 rounded-lg transition-colors"
+          className="text-xs font-bold text-zinc-900 bg-zinc-100 hover:bg-zinc-200 px-3 py-1.5 rounded-lg transition-colors"
           onClick={() => { setMessages([]); setConversationId(null); }}
         >
           + New Session
@@ -99,7 +99,7 @@ export default function CopilotPage() {
           return (
             <div key={idx} className={`flex ${m.role === "USER" ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[85%] rounded-2xl px-5 py-4 ${
-                m.role === "USER" ? "bg-black text-white" : "bg-zinc-50 border border-zinc-200 text-black"
+                m.role === "USER" ? "bg-zinc-800 text-zinc-100 shadow-xs" : "bg-zinc-50 border border-zinc-200 text-black"
               }`}>
                 <p className="text-xs leading-relaxed whitespace-pre-wrap font-sans">{m.content}</p>
 
@@ -151,13 +151,13 @@ export default function CopilotPage() {
             value={input}
             onChange={e => setInput(e.target.value)}
             placeholder="Ask RazorRecovery about revenue at risk, leaks, or recovery net ROI..."
-            className="flex-1 rounded-xl border border-zinc-300 px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-black"
+            className="flex-1 rounded-xl border border-zinc-300 px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-zinc-700"
             disabled={loading}
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="bg-black text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-zinc-800 disabled:opacity-50 transition-colors"
+            className="bg-zinc-800 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-zinc-700 disabled:opacity-50 transition-colors shadow-2xs"
           >
             Send →
           </button>

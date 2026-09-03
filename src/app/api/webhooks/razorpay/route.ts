@@ -60,43 +60,74 @@ export async function POST(req: Request) {
         const paymentEntity = payload.payload.payment.entity;
         const rzpOrderId = paymentEntity.order_id;
         
-        if (rzpOrderId) {
-          const order = await prisma.order.findUnique({ where: { razorpayOrderId: rzpOrderId } });
-          
-          if (order) {
-            await prisma.$transaction([
-              prisma.payment.create({
-                data: {
-                  orderId: order.id,
-                  razorpayPaymentId: paymentEntity.id,
-                  amount: paymentEntity.amount,
-                  currency: paymentEntity.currency,
-                  method: paymentEntity.method,
-                  status: "CAPTURED",
-                }
-              }),
-              prisma.order.update({
-                where: { id: order.id },
-                data: { status: "PAID" }
-              })
-            ]);
-            
-            // Queue outcome evaluation asynchronously
-            setTimeout(async () => {
-              try {
-                await RecoveryOutcomeService.evaluateOutcome(order.id, paymentEntity.id);
-              } catch (e) {
-                console.error("Outcome evaluation failed:", e);
-              }
-            }, 0);
+        let order = rzpOrderId ? await prisma.order.findUnique({ where: { razorpayOrderId: rzpOrderId } }) : null;
+        if (!order && paymentEntity.notes?.order_id) {
+          order = await prisma.order.findFirst({
+            where: {
+              OR: [
+                { id: paymentEntity.notes.order_id },
+                { razorpayOrderId: paymentEntity.notes.order_id }
+              ]
+            }
+          });
+        }
+        if (!order && (paymentEntity.notes?.payment_link_id || payload.payload?.payment_link?.entity?.id)) {
+          const plinkId = paymentEntity.notes?.payment_link_id || payload.payload?.payment_link?.entity?.id;
+          const pl = await prisma.paymentLink.findUnique({ where: { razorpayPaymentLinkId: plinkId } });
+          if (pl) {
+            order = await prisma.order.findUnique({ where: { id: pl.orderId } });
           }
+        }
+        
+        if (order) {
+          await prisma.$transaction([
+            prisma.payment.create({
+              data: {
+                orderId: order.id,
+                razorpayPaymentId: paymentEntity.id,
+                amount: paymentEntity.amount,
+                currency: paymentEntity.currency,
+                method: paymentEntity.method,
+                status: "CAPTURED",
+              }
+            }),
+            prisma.order.update({
+              where: { id: order.id },
+              data: { status: "PAID" }
+            })
+          ]);
+          
+          // Queue outcome evaluation asynchronously
+          setTimeout(async () => {
+            try {
+              await RecoveryOutcomeService.evaluateOutcome(order.id, paymentEntity.id);
+            } catch (e) {
+              console.error("Outcome evaluation failed:", e);
+            }
+          }, 0);
         }
       } else if (eventName === "payment.failed") {
         const paymentEntity = payload.payload.payment.entity;
         const rzpOrderId = paymentEntity.order_id;
         
-        if (rzpOrderId) {
-          const order = await prisma.order.findUnique({ where: { razorpayOrderId: rzpOrderId } });
+        let order = rzpOrderId ? await prisma.order.findUnique({ where: { razorpayOrderId: rzpOrderId } }) : null;
+        if (!order && paymentEntity.notes?.order_id) {
+          order = await prisma.order.findFirst({
+            where: {
+              OR: [
+                { id: paymentEntity.notes.order_id },
+                { razorpayOrderId: paymentEntity.notes.order_id }
+              ]
+            }
+          });
+        }
+        if (!order && (paymentEntity.notes?.payment_link_id || payload.payload?.payment_link?.entity?.id)) {
+          const plinkId = paymentEntity.notes?.payment_link_id || payload.payload?.payment_link?.entity?.id;
+          const pl = await prisma.paymentLink.findUnique({ where: { razorpayPaymentLinkId: plinkId } });
+          if (pl) {
+            order = await prisma.order.findUnique({ where: { id: pl.orderId } });
+          }
+        }
           
           if (order) {
             await prisma.$transaction([
@@ -146,7 +177,6 @@ export async function POST(req: Request) {
               }
             }, 0);
           }
-        }
       } else if (eventName === "payment_link.paid") {
         const linkEntity = payload.payload.payment_link.entity;
         

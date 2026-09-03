@@ -24,9 +24,17 @@ export default async function ProductsPage() {
             {result.data.map((product) => (
               <tr key={product.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <Link href={`/products/${product.id}`} className="text-blue-600 hover:underline">
-                    {product.name}
-                  </Link>
+                  <div className="text-slate-900 font-semibold">{product.name}</div>
+                  {product.productUrl && (
+                    <a
+                      href={product.productUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-600 hover:underline flex items-center gap-1 mt-0.5"
+                    >
+                      <span>↗ Store Product Link</span>
+                    </a>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                   {product.sku || "N/A"}

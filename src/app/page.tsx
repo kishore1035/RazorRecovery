@@ -22,7 +22,7 @@ export default async function OverviewPage({
     return (
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-sm border border-zinc-200 mx-auto mt-12">
         <div className="mb-8 text-center">
-          <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center mx-auto mb-4">
+          <div className="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center mx-auto mb-4 shadow-2xs">
             <span className="text-white font-bold text-xl">R</span>
           </div>
           <h1 className="text-2xl font-semibold text-black tracking-tight">Welcome back</h1>
@@ -31,13 +31,13 @@ export default async function OverviewPage({
         <form className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-zinc-700 mb-1">Email address</label>
-            <input type="email" className="w-full px-3 py-2 border border-zinc-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-black sm:text-sm" placeholder="you@company.com" />
+            <input type="email" className="w-full px-3 py-2 border border-zinc-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-700 sm:text-sm" placeholder="you@company.com" />
           </div>
           <div>
             <label className="block text-sm font-medium text-zinc-700 mb-1">Password</label>
-            <input type="password" className="w-full px-3 py-2 border border-zinc-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-black sm:text-sm" placeholder="••••••••" />
+            <input type="password" className="w-full px-3 py-2 border border-zinc-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-700 sm:text-sm" placeholder="••••••••" />
           </div>
-          <button type="button" className="w-full bg-black text-white font-medium py-2.5 px-4 rounded-lg hover:bg-zinc-800 transition-colors shadow-sm text-sm">
+          <button type="button" className="w-full bg-zinc-800 text-white font-medium py-2.5 px-4 rounded-lg hover:bg-zinc-700 transition-colors shadow-2xs text-sm">
             Sign In
           </button>
         </form>
@@ -126,11 +126,11 @@ export default async function OverviewPage({
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12 font-sans">
-      {/* Top Banner Header (Strict Black & White) */}
-      <div className="bg-black text-white p-6 rounded-2xl shadow-sm border border-zinc-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      {/* Top Banner Header (Glassmorphic Dark) */}
+      <div className="glass-card-dark text-white p-6 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="bg-zinc-800 text-white text-xs px-2.5 py-0.5 rounded-full font-bold border border-zinc-700">
+            <span className="bg-zinc-800/80 backdrop-blur-md text-white text-xs px-2.5 py-0.5 rounded-full font-bold border border-zinc-700">
               Autonomous Revenue Recovery Control Plane
             </span>
             <span className="text-xs text-zinc-400">MONEY → PROBLEM → WHY → ACTION → NET RESULT</span>
@@ -142,7 +142,7 @@ export default async function OverviewPage({
         </div>
         <div className="flex items-center gap-3">
           {/* Time Range Selector */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-1 flex items-center gap-1 text-xs font-semibold">
+          <div className="bg-zinc-800/80 backdrop-blur-md border border-zinc-700/60 rounded-xl p-1 flex items-center gap-1 text-xs font-semibold">
             {[7, 30, 90].map(d => (
               <Link
                 key={d}
@@ -155,8 +155,8 @@ export default async function OverviewPage({
               </Link>
             ))}
           </div>
-          <Link href="/demo" className="shrink-0 bg-white text-black px-4 py-2 rounded-xl text-xs font-bold hover:bg-zinc-200 transition-colors shadow-sm">
-            + Run Test Checkout
+          <Link href="/payment-links/new" className="shrink-0 bg-white text-black px-4 py-2 rounded-xl text-xs font-bold hover:bg-zinc-200 transition-colors shadow-sm">
+            + Create Payment Link
           </Link>
         </div>
       </div>
@@ -172,25 +172,25 @@ export default async function OverviewPage({
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {/* Revenue at Risk */}
-          <div className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs">
+          <div className="glass-card p-5 rounded-2xl">
             <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Revenue at Risk</span>
             <p className="text-2xl font-bold text-black mt-1">₹{(health.revenueAtRisk / 100).toLocaleString("en-IN")}</p>
             <p className="text-[11px] text-zinc-500 mt-1">Active checkout/payment failures</p>
           </div>
 
           {/* Recoverable Revenue */}
-          <div className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs">
+          <div className="glass-card p-5 rounded-2xl">
             <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Recoverable Revenue</span>
             <p className="text-2xl font-bold text-black mt-1">₹{(health.recoverableRevenue / 100).toLocaleString("en-IN")}</p>
             <p className="text-[11px] text-zinc-500 mt-1">Weighted opportunity score</p>
           </div>
 
           {/* Net Recovered Revenue */}
-          <div className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs">
+          <div className="glass-card p-5 rounded-2xl">
             <div className="flex justify-between items-start">
               <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Net Recovered</span>
               {health.netDeltaPercent !== null && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-zinc-100 text-black border border-zinc-300">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-zinc-100/80 text-black border border-zinc-300">
                   {health.netDeltaPercent >= 0 ? `+${health.netDeltaPercent.toFixed(1)}%` : `${health.netDeltaPercent.toFixed(1)}%`}
                 </span>
               )}
@@ -200,11 +200,11 @@ export default async function OverviewPage({
           </div>
 
           {/* Recovery Rate */}
-          <div className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs">
+          <div className="glass-card p-5 rounded-2xl">
             <div className="flex justify-between items-start">
               <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Recovery Rate</span>
               {health.rateDeltaPercent !== null && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-zinc-100 text-black border border-zinc-300">
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-zinc-100/80 text-black border border-zinc-300">
                   {health.rateDeltaPercent >= 0 ? `+${health.rateDeltaPercent.toFixed(1)}%` : `${health.rateDeltaPercent.toFixed(1)}%`}
                 </span>
               )}
@@ -214,7 +214,7 @@ export default async function OverviewPage({
           </div>
 
           {/* Recovery ROI */}
-          <div className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs">
+          <div className="glass-card p-5 rounded-2xl">
             <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Net Recovery ROI</span>
             <p className="text-2xl font-bold text-black mt-1">
               {health.totalIncentiveCost > 0 ? `${health.recoveryROI.toFixed(1)}x` : "100% Net"}
@@ -223,7 +223,7 @@ export default async function OverviewPage({
           </div>
 
           {/* Active Opportunities */}
-          <div className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-xs">
+          <div className="glass-card p-5 rounded-2xl">
             <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Opportunities</span>
             <p className="text-2xl font-bold text-black mt-1">{health.activeOpportunities}</p>
             <p className="text-[11px] text-zinc-500 mt-1">Queued for intervention</p>
@@ -234,13 +234,13 @@ export default async function OverviewPage({
       {/* GRAPH A & GRAPH C GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* GRAPH A — REVENUE RECOVERY TREND */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-zinc-200 shadow-xs">
+        <div className="lg:col-span-2 glass-card-static p-6 rounded-2xl">
           <div className="flex justify-between items-center mb-4">
             <div>
               <h3 className="text-base font-bold text-black">Revenue Recovery Trend</h3>
               <p className="text-xs text-zinc-500">Real-time tracking of Risk vs Gross Recovered vs Net Recovered</p>
             </div>
-            <span className="text-xs font-semibold text-zinc-600 bg-zinc-100 px-2.5 py-1 rounded-md border border-zinc-200">
+            <span className="text-xs font-semibold text-zinc-600 bg-zinc-100/80 backdrop-blur-sm px-2.5 py-1 rounded-md border border-zinc-200">
               Last {days} Days
             </span>
           </div>
@@ -248,7 +248,7 @@ export default async function OverviewPage({
         </div>
 
         {/* GRAPH C — REVENUE LEAK BREAKDOWN */}
-        <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-xs space-y-4">
+        <div className="glass-card-static p-6 rounded-2xl space-y-4">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-base font-bold text-black">Revenue Leak Breakdown</h3>
@@ -260,7 +260,7 @@ export default async function OverviewPage({
           </div>
 
           {leakBarItems.length === 0 ? (
-            <div className="py-12 text-center text-xs text-zinc-400 border border-dashed border-zinc-200 rounded-xl">
+            <div className="py-12 text-center text-xs text-zinc-400 border border-dashed border-zinc-200/80 rounded-xl">
               No active systemic revenue leaks detected.
             </div>
           ) : (
@@ -272,7 +272,7 @@ export default async function OverviewPage({
       {/* GRAPH D & GRAPH E GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* GRAPH D — RECOVERY STRATEGY PERFORMANCE */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-zinc-200 shadow-xs space-y-4">
+        <div className="lg:col-span-2 glass-card-static p-6 rounded-2xl space-y-4">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-base font-bold text-black">Recovery Strategy Performance</h3>
@@ -286,7 +286,7 @@ export default async function OverviewPage({
         </div>
 
         {/* GRAPH E — PAYMENT HEALTH */}
-        <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-xs space-y-4">
+        <div className="glass-card-static p-6 rounded-2xl space-y-4">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-base font-bold text-black">Payment Health</h3>
@@ -298,27 +298,27 @@ export default async function OverviewPage({
           </div>
 
           {paymentHealth.length === 0 ? (
-            <div className="py-12 text-center text-xs text-zinc-400 border border-dashed border-zinc-200 rounded-xl">
+            <div className="py-12 text-center text-xs text-zinc-400 border border-dashed border-zinc-200/80 rounded-xl">
               No payment transactions recorded yet.
             </div>
           ) : (
             <div className="space-y-3">
               {paymentHealth.map(ph => (
-                <div key={ph.method} className="p-3.5 rounded-xl border border-zinc-200 bg-zinc-50 space-y-2">
+                <div key={ph.method} className="p-3.5 rounded-xl border border-zinc-200/70 bg-zinc-50/70 backdrop-blur-xs space-y-2">
                   <div className="flex justify-between items-center text-xs">
                     <span className="font-bold text-black">{ph.method}</span>
                     <div className="flex items-center gap-2">
                       {ph.isDegraded && (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-black text-white uppercase tracking-wider">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-800 text-white uppercase tracking-wider">
                           ANOMALY DEGRADED
                         </span>
                       )}
                       <span className="font-bold text-black">{ph.successRate}% Success</span>
                     </div>
                   </div>
-                  <div className="w-full bg-zinc-200 rounded-full h-2 overflow-hidden border border-zinc-300">
+                  <div className="w-full bg-zinc-200/80 rounded-full h-2 overflow-hidden border border-zinc-300/80">
                     <div
-                      className="h-full rounded-full bg-black transition-all"
+                      className="h-full rounded-full bg-zinc-700 transition-all"
                       style={{ width: `${ph.successRate}%` }}
                     ></div>
                   </div>
@@ -334,8 +334,8 @@ export default async function OverviewPage({
       </div>
 
       {/* RECENT AGENT INTERVENTIONS QUEUE */}
-      <div className="bg-white rounded-2xl border border-zinc-200 shadow-xs overflow-hidden">
-        <div className="px-6 py-4 border-b border-zinc-200 flex justify-between items-center bg-zinc-50">
+      <div className="glass-card-static rounded-2xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-zinc-200/80 flex justify-between items-center bg-zinc-50/70 backdrop-blur-xs">
           <div>
             <h3 className="text-base font-bold text-black">Autonomous Interventions Queue</h3>
             <p className="text-xs text-zinc-500">MONEY → PROBLEM → WHY → RECOMMENDATION → ACTION → RESULT</p>
@@ -347,21 +347,21 @@ export default async function OverviewPage({
 
         {recentCases.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 bg-zinc-100/80 rounded-full flex items-center justify-center mx-auto mb-3">
               <span className="text-zinc-400 font-bold">₹</span>
             </div>
             <h4 className="text-sm font-bold text-black">No active recovery cases yet</h4>
             <p className="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">
-              Simulate a payment failure in the Checkout Simulator to test how the AI diagnoses failures and calculates counterfactual net recovery.
+              Create a payment link and simulate a failure to test how the AI diagnoses failures and calculates counterfactual net recovery.
             </p>
-            <Link href="/demo" className="inline-block mt-4 text-xs font-bold bg-black text-white px-4 py-2 rounded-lg hover:bg-zinc-800 transition-colors">
-              Run Demo Checkout →
+            <Link href="/payment-links/new" className="inline-block mt-4 text-xs font-bold bg-zinc-800 text-white px-4 py-2 rounded-lg hover:bg-zinc-700 transition-colors shadow-2xs">
+              Create Payment Link →
             </Link>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-zinc-200 text-xs">
-              <thead className="bg-zinc-100 text-zinc-700 uppercase tracking-wider text-[10px] font-bold">
+            <table className="min-w-full divide-y divide-zinc-200/80 text-xs">
+              <thead className="bg-zinc-100/70 backdrop-blur-xs text-zinc-700 uppercase tracking-wider text-[10px] font-bold">
                 <tr>
                   <th className="px-6 py-3 text-left">Customer / Order</th>
                   <th className="px-6 py-3 text-right">Risk Amount</th>
@@ -372,12 +372,12 @@ export default async function OverviewPage({
                   <th className="px-6 py-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-zinc-200">
+              <tbody className="bg-white/60 backdrop-blur-xs divide-y divide-zinc-200/80">
                 {recentCases.map(rec => {
                   const decision = rec.aiDecisions[0];
                   const outcome = rec.recoveryOutcome;
                   return (
-                    <tr key={rec.id} className="hover:bg-zinc-50 transition-colors">
+                    <tr key={rec.id} className="hover:bg-zinc-50/80 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap font-bold text-black">
                         {rec.customer.name || "Guest"}
                         <div className="text-[11px] text-zinc-500 font-normal">
@@ -391,7 +391,7 @@ export default async function OverviewPage({
                         {decision?.diagnosis || rec.riskReason.replace(/_/g, " ")}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="font-bold text-black bg-zinc-100 px-2 py-1 rounded border border-zinc-300 text-[11px]">
+                        <span className="font-bold text-black bg-zinc-100/80 px-2 py-1 rounded border border-zinc-300/80 text-[11px]">
                           {decision?.recommendedAction.replace(/_/g, " ") || "ANALYZING"}
                         </span>
                       </td>
@@ -403,7 +403,7 @@ export default async function OverviewPage({
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold bg-zinc-100 text-black border border-zinc-300 uppercase tracking-wider">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold bg-zinc-100/80 text-black border border-zinc-300/80 uppercase tracking-wider">
                           {rec.status.replace(/_/g, " ")}
                         </span>
                       </td>
@@ -422,8 +422,8 @@ export default async function OverviewPage({
       </div>
 
       {/* RECOVERY MEMORY SECTION */}
-      <div className="bg-white rounded-2xl border border-zinc-200 shadow-xs p-6 space-y-4">
-        <div className="flex justify-between items-center border-b border-zinc-100 pb-4">
+      <div className="glass-card-static rounded-2xl p-6 space-y-4">
+        <div className="flex justify-between items-center border-b border-zinc-200/80 pb-4">
           <div>
             <h3 className="text-base font-bold text-black">Recovery Memory & Segment Insights</h3>
             <p className="text-xs text-zinc-500">Synthesized empirical memory from past recovery outcomes</p>
@@ -434,19 +434,19 @@ export default async function OverviewPage({
         </div>
 
         {memories.length === 0 ? (
-          <div className="py-8 text-center text-xs text-zinc-400 border border-dashed border-zinc-200 rounded-xl">
+          <div className="py-8 text-center text-xs text-zinc-400 border border-dashed border-zinc-200/80 rounded-xl">
             Not enough historical evidence yet to establish segment memory.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {memories.map(m => (
-              <div key={m.id} className="p-4 rounded-xl border border-zinc-200 bg-zinc-50 space-y-2">
+              <div key={m.id} className="p-4 rounded-xl border border-zinc-200/80 bg-zinc-50/70 backdrop-blur-xs space-y-2">
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{m.segmentType}</span>
                     <h4 className="text-xs font-bold text-black">{m.segmentKey}</h4>
                   </div>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-100 text-black border border-zinc-300 uppercase tracking-wider">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-100/80 text-black border border-zinc-300/80 uppercase tracking-wider">
                     {m.confidence} Confidence
                   </span>
                 </div>

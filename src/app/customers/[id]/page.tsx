@@ -76,7 +76,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
       {/* Customer Header */}
       <div className="bg-white p-6 rounded-2xl border border-zinc-200 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-xl font-bold shrink-0">
+          <div className="w-14 h-14 bg-zinc-800 text-zinc-100 rounded-2xl flex items-center justify-center text-xl font-bold shrink-0">
             {(customer.name || "G").charAt(0).toUpperCase()}
           </div>
           <div>
@@ -98,50 +98,50 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         </div>
       </div>
 
-      {/* RECOVERY DNA CARD — Black & White */}
-      <div className="bg-black text-white p-6 rounded-2xl border border-zinc-800 shadow-sm space-y-6">
-        <div className="flex justify-between items-center border-b border-zinc-800 pb-3">
+      {/* RECOVERY DNA CARD — Soft Charcoal / Light Black */}
+      <div className="bg-zinc-800 text-zinc-100 p-6 rounded-2xl border border-zinc-700/80 shadow-xs space-y-6">
+        <div className="flex justify-between items-center border-b border-zinc-700/60 pb-3">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-zinc-300 animate-pulse"></span>
             <h2 className="text-base font-bold text-white">Customer Recovery DNA</h2>
           </div>
           <span className="text-xs text-zinc-400 font-mono">ID: {customer.id.slice(0, 12)}</span>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-700">
+          <div className="bg-zinc-900/60 p-4 rounded-xl border border-zinc-700/60">
             <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold block mb-1">Total Orders</span>
             <span className="text-xl font-bold text-white">{totalOrders}</span>
           </div>
 
-          <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-700">
+          <div className="bg-zinc-900/60 p-4 rounded-xl border border-zinc-700/60">
             <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold block mb-1">Failed Payments</span>
             <span className="text-xl font-bold text-white">{failedPayments}</span>
           </div>
 
-          <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-700">
+          <div className="bg-zinc-900/60 p-4 rounded-xl border border-zinc-700/60">
             <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold block mb-1">Recovered</span>
             <span className="text-xl font-bold text-white">{recoveredCases.length}</span>
           </div>
 
-          <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-700">
+          <div className="bg-zinc-900/60 p-4 rounded-xl border border-zinc-700/60">
             <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold block mb-1">Recovery Rate</span>
             <span className="text-xl font-bold text-white">{recoveryRate.toFixed(0)}%</span>
           </div>
 
-          <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-700">
+          <div className="bg-zinc-900/60 p-4 rounded-xl border border-zinc-700/60">
             <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold block mb-1">Best Strategy</span>
             <span className="text-xs font-bold text-white truncate block mt-1">{bestStrategy.replace(/_/g, " ")}</span>
           </div>
 
-          <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-700">
+          <div className="bg-zinc-900/60 p-4 rounded-xl border border-zinc-700/60">
             <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-bold block mb-1">Preferred Pay</span>
             <span className="text-xs font-bold text-white block mt-1">{preferredMethod}</span>
           </div>
         </div>
 
         {/* Intelligence Insight Box */}
-        <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-800 space-y-1">
+        <div className="bg-zinc-900/60 p-4 rounded-xl border border-zinc-700/60 space-y-1">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">RazorRecovery Intelligence</span>
           </div>

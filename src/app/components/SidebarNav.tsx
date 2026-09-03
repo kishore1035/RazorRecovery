@@ -12,8 +12,7 @@ export function SidebarNav() {
       links: [
         { href: "/", label: "Overview" },
         { href: "/payments", label: "Payments", badge: "Live" },
-        { href: "/demo", label: "Checkout Simulator", badge: "Live Demo" },
-        { href: "/payment-links/new", label: "Create Payment Link" },
+        { href: "/payment-links/new", label: "Create Payment Link", badge: "Live" },
         { href: "/customers", label: "Customers" },
         { href: "/products", label: "Products" },
         { href: "/orders", label: "Orders" },
@@ -65,7 +64,7 @@ export function SidebarNav() {
                   href={link.href}
                   className={`flex items-center justify-between px-3 py-2 text-xs font-bold rounded-lg transition-colors ${
                     isActive
-                      ? "bg-black text-white shadow-2xs border border-black"
+                      ? "bg-zinc-800 text-white shadow-2xs border border-zinc-700"
                       : "text-zinc-600 hover:text-black hover:bg-zinc-100"
                   }`}
                 >
@@ -75,7 +74,7 @@ export function SidebarNav() {
                   </span>
                   {link.badge && (
                     <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
-                      isActive ? "bg-zinc-800 text-white border border-zinc-700" : "bg-zinc-100 text-black border border-zinc-300"
+                      isActive ? "bg-zinc-700 text-white border border-zinc-600" : "bg-zinc-100 text-black border border-zinc-300"
                     }`}>
                       {link.badge}
                     </span>

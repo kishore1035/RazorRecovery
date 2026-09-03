@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 
 interface PaymentItem {
@@ -47,10 +47,14 @@ export default function PaymentsPage() {
   const [payments, setPayments] = useState<PaymentItem[]>([]);
   const [counts, setCounts] = useState<TabCounts>({ all: 0, created: 0, captured: 0, refunded: 0, failed: 0 });
   const [loading, setLoading] = useState(true);
+  const [isLiveMode, setIsLiveMode] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const isFetchingRef = useRef(false);
 
-  const fetchPayments = useCallback(async (isSilent = false) => {
+  const fetchPayments = useCallback(async (isSilent = false, sync = true) => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     if (!isSilent) setLoading(true);
     try {
       const params = new URLSearchParams({
@@ -60,6 +64,7 @@ export default function PaymentsPage() {
         dateRange: dateRange,
         search: search,
         searchField: searchField,
+        ...(sync ? { sync: "true" } : {})
       });
 
       const res = await fetch(`/api/payments?${params.toString()}`);
@@ -68,25 +73,29 @@ export default function PaymentsPage() {
       if (data.success) {
         setPayments(data.payments);
         setCounts(data.counts);
+        if (typeof data.isLive === "boolean") {
+          setIsLiveMode(data.isLive);
+        }
         setLastRefreshed(new Date());
       }
     } catch (err) {
       console.error("Failed to fetch payments:", err);
     } finally {
       if (!isSilent) setLoading(false);
+      isFetchingRef.current = false;
     }
   }, [activeTab, statusFilter, methodFilter, dateRange, search, searchField]);
 
-  // Initial fetch and dependency trigger
+  // Initial fetch and dependency trigger (syncing live)
   useEffect(() => {
-    fetchPayments();
+    fetchPayments(false, true);
   }, [fetchPayments]);
 
-  // Polling every 5 seconds for live data updates
+  // Polling every 3 seconds for continuous live data stream
   useEffect(() => {
     const interval = setInterval(() => {
-      fetchPayments(true);
-    }, 5000);
+      fetchPayments(true, true);
+    }, 3000);
     return () => clearInterval(interval);
   }, [fetchPayments]);
 
@@ -121,21 +130,32 @@ export default function PaymentsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold text-black tracking-tight">Payments</h1>
-            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-black text-white px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              Razorpay Test Mode
-            </span>
+            {isLiveMode ? (
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold bg-emerald-800 text-emerald-100 border border-emerald-700 px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
+                Razorpay Live Mode
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-zinc-800 text-white px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-2xs">
+                Razorpay Test Mode
+              </span>
+            )}
           </div>
           <p className="text-xs text-zinc-500 mt-1">Real-time payment transactions & failure recovery statuses</p>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-black bg-zinc-100 px-3 py-1.5 rounded-xl border border-zinc-300">
-            <span className="w-2 h-2 rounded-full bg-black animate-pulse"></span>
-            Live Stream Active ({lastRefreshed.toLocaleTimeString()})
+          <span className="inline-flex items-center gap-2 text-xs font-bold text-zinc-900 bg-zinc-100 px-3 py-1.5 rounded-xl border border-zinc-300 shadow-2xs">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span>Live Stream Active</span>
+            <span className="text-zinc-500 font-normal text-[11px]">({lastRefreshed.toLocaleTimeString()})</span>
           </span>
           <button
-            onClick={() => fetchPayments()}
-            className="text-xs font-bold bg-white text-black border border-zinc-300 px-3.5 py-1.5 rounded-xl hover:bg-zinc-100 transition-colors"
+            onClick={() => fetchPayments(false, true)}
+            className="text-xs font-bold bg-white text-black border border-zinc-300 px-3.5 py-1.5 rounded-xl hover:bg-zinc-100 transition-colors shadow-2xs"
           >
             ↻ Refresh
           </button>
@@ -159,14 +179,14 @@ export default function PaymentsPage() {
                   onClick={() => setActiveTab(t.key)}
                   className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 shrink-0 ${
                     isActive
-                      ? "bg-black text-white shadow-2xs"
+                      ? "bg-zinc-800 text-white shadow-2xs"
                       : "text-zinc-600 hover:text-black hover:bg-zinc-100"
                   }`}
                 >
                   <span>{t.label}</span>
                   <span
                     className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                      isActive ? "bg-zinc-800 text-white" : "bg-zinc-100 text-zinc-600"
+                      isActive ? "bg-zinc-700 text-white" : "bg-zinc-100 text-zinc-600"
                     }`}
                   >
                     {count}
@@ -286,12 +306,12 @@ export default function PaymentsPage() {
           ) : payments.length === 0 ? (
             <div className="p-12 text-center space-y-2">
               <p className="text-sm font-bold text-black">No payments found</p>
-              <p className="text-xs text-zinc-500">Try adjusting your filters or search query, or run a test checkout.</p>
+              <p className="text-xs text-zinc-500">Try adjusting your filters or search query, or create a payment link.</p>
               <Link
-                href="/demo"
-                className="inline-block mt-2 bg-black text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-zinc-800 transition-colors"
+                href="/payment-links/new"
+                className="inline-block mt-2 bg-zinc-800 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-zinc-800 transition-colors"
               >
-                + Run Test Checkout
+                + Create Payment Link
               </Link>
             </div>
           ) : (
@@ -363,7 +383,7 @@ export default function PaymentsPage() {
                         ) : isFailed ? (
                           <span
                             title={p.rawFailureReason || p.failureReason || "Payment Failed"}
-                            className="inline-flex items-center gap-1 bg-black text-white px-2 py-0.5 rounded text-[10px] font-bold max-w-[160px] cursor-help"
+                            className="inline-flex items-center gap-1 bg-zinc-800 text-white px-2 py-0.5 rounded text-[10px] font-bold max-w-[160px] cursor-help"
                           >
                             <span className="text-zinc-400 shrink-0">✕</span>
                             <span className="truncate">{p.failureReason || "Payment Failed"}</span>
