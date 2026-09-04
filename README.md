@@ -19,37 +19,6 @@ When a customer's payment fails at checkout, RazorRecovery steps in instantly:
 
 ---
 
-## 📸 Platform Gallery
-
-*(Add your screenshots to the `docs/images/` folder to display them here!)*
-
-| Global Overview Dashboard | Intelligent Payment Links |
-| :---: | :---: |
-| ![Dashboard Overview](./docs/images/dashboard.png)<br>*Macro-level visualization of revenue health and interventions.* | ![Create Link](./docs/images/create-link.png)<br>*Targeted recovery link generation.* |
-
-| Customer Analytics | Product Inventory |
-| :---: | :---: |
-| ![Customers](./docs/images/customers.png)<br>*Unified view of customer behavior and checkout history.* | ![Products](./docs/images/products.png)<br>*Monochrome, quiet-luxury product management.* |
-
-| Revenue Insights Engine | Revenue Leaks Explorer |
-| :---: | :---: |
-| ![Insights](./docs/images/insights.png)<br>*Macro-funnel telemetry and health tracking.* | ![Leaks](./docs/images/leaks.png)<br>*Automated detection of systemic revenue drops.* |
-
-| Recovery Memory | Revenue at Risk / Orders |
-| :---: | :---: |
-| ![Memory](./docs/images/memory.png)<br>*Empirical evidence of counterfactual recovery rates.* | ![Revenue at Risk](./docs/images/revenue-at-risk.png)<br>*Active tracking of payment failures.* |
-
-| Recovery Lab (A/B Testing) | Moxy AI (Copilot) |
-| :---: | :---: |
-| ![Recovery Lab](./docs/images/lab.png)<br>*Mathematical ROI verification of counterfactual strategies.* | ![Moxy AI](./docs/images/moxy.png)<br>*Context-aware financial intelligence agent.* |
-
-| Policy Engine (Teach RazorRecovery) | Incentives & Vouchers |
-| :---: | :---: |
-| ![Policy Engine](./docs/images/policy.png)<br>*Deterministic, policy-bounded AI execution.* | ![Incentives](./docs/images/incentives.png)<br>*Dynamic voucher management for recoveries.* |
-
-| Razorpay Configuration | Checkout Webhook Integration |
-| :---: | :---: |
-| ![Config](./docs/images/config.png)<br>*Native Live/Test mode secure API integration.* | ![Checkout](./docs/images/checkout.png)<br>*End-to-end checkout failure & success tracking.* |
 
 ---
 
@@ -152,28 +121,43 @@ Copilot (Context-aware querying engine)
 Target Duration: 5-8 minutes
 
 ## 1. Overview (1 min)
+
+![Dashboard Overview](./docs/images/dashboard.png)
+
 - **Goal:** Show the core product value.
 - Start at the `/` Overview dashboard. Point out "Revenue at Risk" and "Net Recovered".
 - Highlight the "What RazorRecovery Learned" section. Emphasize that this is not a static tool; it is actively improving based on past recovery outcomes.
 
 ## 2. Revenue at Risk -> Golden Case (2 mins)
+
+![Revenue at Risk](./docs/images/revenue-at-risk.png)
+
 - Navigate to `/recoveries`. Click on the most recent case for **Rahul Sharma (Nike Air Max 270)**.
 - **Narrative:** "Rahul's UPI payment failed. Normally, you'd send a generic payment link. But look what RazorRecovery did."
 - Show the AI Recommendation and Counterfactuals (Prediction vs Reality if already completed).
 - Explain how the AI chose the action based on maximum *Net* recovered revenue.
 
 ## 3. Recovery Lab (1.5 mins)
+
+![Recovery Lab](./docs/images/lab.png)
+
 - Go to `/recovery-lab`.
 - Show how a merchant can create A/B tests (e.g., Payment Link vs Voucher) in a strictly controlled manner with budget limits.
 - Show `/settings/preferences` (Teach RazorRecovery) where merchants can hardcode behaviors that the AI strictly follows (e.g., "Always use Payment Link for Returning Customers").
 
 ## 4. Copilot (1.5 mins)
+
+![Moxy AI](./docs/images/moxy.png)
+
 - Open `/copilot`.
 - **Query 1:** "What is my revenue summary for this month?" (Shows context retrieval).
 - **Query 2:** "Show me active revenue leaks." (Shows insight capability without hallucinations).
 - Point out that Copilot cannot move money—it only proposes actions requiring approval.
 
 ## 5. Insights (1 min)
+
+![Insights Engine](./docs/images/insights.png)
+
 - Briefly show `/insights/leaks`.
 - Show how RazorRecovery detects funnel degradation (e.g., UPI failures spiking by 15%) saving the merchant far more than just a single abandoned cart.
 
@@ -189,9 +173,15 @@ The RazorRecovery data architecture maps out the complete customer journey, expl
 ## Core Models
 
 ### 1. `Customer`
+
+![Customers](./docs/images/customers.png)
+
 Belongs to a `Store`. Stores contact information and unique `externalCustomerId` references. Customers contain multiple `Orders` and `CheckoutSessions`.
 
 ### 2. `Product`
+
+![Products](./docs/images/products.png)
+
 Belongs to a `Store`. Defines standard product details, SKU, and a `price` (stored consistently in *integer minor units*). Avoids floating point inaccuracies. Inventory states (`IN_STOCK`, `LOW_STOCK`, `OUT_OF_STOCK`, `UNKNOWN`) are supported natively.
 
 ### 3. `Cart` & `CartItem`
@@ -361,6 +351,10 @@ Variables injected into the notification (customer name, store name, Razorpay Pa
 
 # Policy Engine
 
+![Policy Engine](./docs/images/policy.png)
+
+![Policy Rule](./docs/images/policy-rule.png)
+
 The RazorRecovery Policy Engine sits deterministically between the AI's recommendations and real financial execution.
 
 ## Rules Enforced
@@ -406,6 +400,8 @@ By tracking the `averageIncentiveCost` and `grossRecovered` per `PRODUCT`, the m
 
 # Razorpay Integration
 
+![Razorpay Configuration](./docs/images/config.png)
+
 The Razorpay integration handles actual Payment interactions securely via Server Actions and Next.js Webhooks.
 
 ## Environment Variables
@@ -414,12 +410,18 @@ The Razorpay integration handles actual Payment interactions securely via Server
 - `RAZORPAY_WEBHOOK_SECRET`: Secure string used to cryptographically verify incoming webhook payloads.
 
 ## Webhooks
+
+![Checkout Integration](./docs/images/checkout.png)
+
 Located at `POST /api/webhooks/razorpay`.
 - **Signature Verification**: We compute an `HMAC-SHA256` signature using the raw request body and compare it with the `x-razorpay-signature` header via `crypto.timingSafeEqual`.
 - **Idempotency**: All processed events are recorded in `WebhookEvent` mapping `providerEventId` (using `x-razorpay-event-id`). Any duplicate hits are instantly ignored returning a 200 OK.
 - **Transactional Updates**: When `payment.captured` or `payment.failed` is received, we execute a Prisma `$transaction` combining `payment` creation and `order` state updates synchronously.
 
 ## Payment Links
+
+![Create Payment Link](./docs/images/create-link.png)
+
 We support Payment Link creation natively via `RazorpayService.createPaymentLink`. The resulting short URLs and provider metadata are tracked locally inside the `PaymentLink` model to facilitate subsequent SMS/Email recoveries in future chunks.
 
 
@@ -508,6 +510,8 @@ All actions within the Recovery Lab are constrained by the **Policy Engine**. Ex
 ### Recovery Memory
 
 # Recovery Memory
+
+![Recovery Memory](./docs/images/memory.png)
 
 RazorRecovery aggregates actual historical recovery outcomes to answer: *"Which recovery strategy works best in this situation?"*
 
@@ -598,6 +602,8 @@ It aggregates `RevenueLeak` severities provided by the `PaymentDegradationContro
 
 # Revenue Leak Detector
 
+![Revenue Leaks](./docs/images/leaks.png)
+
 The Revenue Leak Detector actively monitors critical commerce flows to answer: "Is there a larger payment or checkout problem affecting many customers?"
 
 ## Methodology
@@ -655,6 +661,8 @@ It leverages `RecoveryMemory`, querying the deterministic historical performance
 ### Voucher System
 
 # Voucher System
+
+![Incentives and Vouchers](./docs/images/incentives.png)
 
 AI does *not* generate arbitrary vouchers. It merely selects from pre-approved `Voucher` entities strictly governed by the Merchant's explicit settings.
 
