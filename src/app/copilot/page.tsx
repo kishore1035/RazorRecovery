@@ -42,7 +42,7 @@ export default function CopilotPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-zinc-300 animate-pulse"></span>
-            <h1 className="text-base font-bold text-white">Ask RazorRecovery Copilot</h1>
+            <h1 className="text-base font-bold text-white">Ask Moxy AI</h1>
           </div>
           <p className="text-xs text-zinc-400 mt-0.5">Context-Aware Financial Intelligence Agent</p>
         </div>

@@ -19,7 +19,7 @@ export default async function RecoveryLabPage() {
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="bg-purple-100 text-purple-800 text-xs px-2.5 py-0.5 rounded-full font-bold border border-purple-200">
+            <span className="bg-zinc-800 text-zinc-100 text-xs px-2.5 py-0.5 rounded-full font-bold border border-zinc-700">
               Controlled A/B Experiments
             </span>
             <span className="bg-slate-100 text-slate-700 text-xs px-2.5 py-0.5 rounded-full font-bold border border-slate-200">
@@ -73,7 +73,7 @@ export default async function RecoveryLabPage() {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-100 pb-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
+                      <span className="text-xs font-bold text-black bg-zinc-100 px-2.5 py-0.5 rounded-full border border-zinc-300">
                         {exp.status}
                       </span>
                       <span className="text-xs text-slate-400 font-mono">ID: {exp.id.slice(0, 8)}</span>
@@ -91,9 +91,9 @@ export default async function RecoveryLabPage() {
                       <span className="text-lg font-bold text-slate-900">{totalAttempts}</span>
                     </div>
                     <div className="h-8 w-px bg-slate-200"></div>
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Recovery Control Lab</span>
-                      <span className="text-lg font-bold text-green-600">NET RECOVERY LIFT</span>
+                    <div className="text-right">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Recovery Control Lab</span>
+                      <span className="text-lg font-bold text-slate-900 block">Net Recovery Lift</span>
                     </div>
                   </div>
                 </div>

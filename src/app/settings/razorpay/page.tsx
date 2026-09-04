@@ -26,8 +26,8 @@ export default async function RazorpaySettingsPage() {
             <h2 className="text-lg font-medium text-slate-900">Connection Status</h2>
             <p className="text-sm text-slate-500 mt-1">Status of your Razorpay Test Mode integration.</p>
           </div>
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-            isConnected ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider uppercase ${
+            isConnected ? "bg-zinc-100 text-black border-zinc-300" : "bg-zinc-900 text-white border-zinc-900"
           }`}>
             {status}
           </span>

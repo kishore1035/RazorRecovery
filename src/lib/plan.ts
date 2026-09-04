@@ -83,7 +83,10 @@ export const RecoveryPlanService = {
           recoveryPlanId: plan.id,
           stepNumber: stepNumber++,
           actionType: "PAYMENT_LINK",
-          metadata: JSON.stringify({ generateLink: true })
+          metadata: JSON.stringify({ 
+            generateLink: true, 
+            discountAmount: option.predictedIncentiveCost 
+          })
         }
       });
       

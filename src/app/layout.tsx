@@ -4,6 +4,7 @@ import "./globals.css";
 import { getAuthContext } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { SidebarNav } from "./components/SidebarNav";
+import { NotificationBell } from "./components/NotificationBell";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -48,7 +49,7 @@ export default async function RootLayout({
             <aside className="w-64 bg-white border-r border-zinc-200 flex flex-col">
               <div className="p-6 border-b border-zinc-200">
                 <div className="flex items-center gap-2">
-                  <img src="/logo.png" alt="RazorRecovery Logo" className="h-8 w-auto object-contain" />
+                  <img src="/logo.png" alt="RazorRecovery Logo" className="h-7 w-auto object-contain rounded-md" />
                   <span className="font-bold text-black tracking-tight ml-2">RazorRecovery</span>
                 </div>
                 {/* Store Switcher — real store name from DB */}
@@ -64,7 +65,7 @@ export default async function RootLayout({
               
               {/* Real user identity from DB */}
               <div className="p-4 border-t border-zinc-200">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 rounded-full bg-zinc-800 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
                     {userInitials}
                   </div>
@@ -73,6 +74,9 @@ export default async function RootLayout({
                     {userEmail && <p className="text-zinc-500 text-[11px] truncate">{userEmail}</p>}
                   </div>
                 </div>
+                <p className="text-[9px] text-zinc-400 leading-relaxed border-t border-zinc-100 pt-3 mt-3">
+                  Disclaimer: "RazorRecovery" & logo are used for thematic purposes. This is an independent Razorpay Buildathon submission, not an official product.
+                </p>
               </div>
             </aside>
             
@@ -97,6 +101,7 @@ export default async function RootLayout({
                     <span className="w-1.5 h-1.5 rounded-full bg-zinc-700 animate-pulse"></span>
                     Webhook Listener Active
                   </span>
+                  <NotificationBell topic={process.env.NTFY_TOPIC || "razorrecovery-default"} />
                   <a href="/payment-links/new" className="text-xs font-bold bg-zinc-800 text-white px-3.5 py-1.5 rounded-lg hover:bg-zinc-700 transition-colors shadow-2xs">
                     + Create Payment Link
                   </a>

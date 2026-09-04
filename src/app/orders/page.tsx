@@ -25,7 +25,7 @@ export default async function OrdersPage() {
             {result.data.map((order) => (
               <tr key={order.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <Link href={`/orders/${order.id}`} className="text-blue-600 hover:underline">
+                  <Link href={`/orders/${order.id}`} className="text-slate-900 hover:underline">
                     {order.id.slice(0, 8)}...
                   </Link>
                 </td>
@@ -35,10 +35,10 @@ export default async function OrdersPage() {
                   </Link>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    order.status === "PAID" ? "bg-green-100 text-green-800" :
-                    order.status === "FAILED" ? "bg-red-100 text-red-800" :
-                    "bg-yellow-100 text-yellow-800"
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                    order.status === "PAID" ? "bg-slate-900 text-white border-transparent" :
+                    order.status === "FAILED" ? "bg-white text-slate-900 border-slate-300" :
+                    "bg-slate-100 text-slate-700 border-transparent"
                   }`}>
                     {order.status}
                   </span>

@@ -27,10 +27,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           <h1 className="text-2xl font-semibold text-slate-900">Order #{order.id.slice(0, 8)}</h1>
           <p className="text-sm text-slate-500 mt-1">{new Date(order.createdAt).toLocaleString()}</p>
         </div>
-        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-          order.status === "PAID" ? "bg-green-100 text-green-800" :
-          order.status === "FAILED" ? "bg-red-100 text-red-800" :
-          "bg-yellow-100 text-yellow-800"
+        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${
+          order.status === "PAID" ? "bg-slate-900 text-white border-transparent" :
+          order.status === "FAILED" ? "bg-white text-slate-900 border-slate-300" :
+          "bg-slate-100 text-slate-700 border-transparent"
         }`}>
           {order.status}
         </span>
@@ -40,7 +40,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
           <h2 className="text-sm font-semibold text-slate-900 border-b border-slate-100 pb-2">Customer Details</h2>
           <div>
-            <Link href={`/customers/${order.customer.id}`} className="text-blue-600 font-medium hover:underline">
+            <Link href={`/customers/${order.customer.id}`} className="text-slate-900 font-medium hover:underline">
               {order.customer.name || "Guest"}
             </Link>
             <p className="text-sm text-slate-500 mt-1">{order.customer.email}</p>
@@ -62,10 +62,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                       {payment.razorpayPaymentId || "Not connected to Razorpay yet"}
                     </span>
                     {payment.failureReason && (
-                      <p className="text-red-500 text-xs mt-0.5">Error: {payment.failureReason}</p>
+                      <p className="text-slate-600 text-xs mt-0.5">Error: {payment.failureReason}</p>
                     )}
                   </div>
-                  <span className={`font-medium ${payment.status === "CAPTURED" ? "text-green-600" : "text-slate-900"}`}>
+                  <span className={`font-medium ${payment.status === "CAPTURED" ? "text-slate-900" : "text-slate-600"}`}>
                     {payment.status}
                   </span>
                 </li>
@@ -89,7 +89,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             {order.items.map((item) => (
               <tr key={item.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 font-medium">
-                  <Link href={`/products/${item.productId}`} className="hover:underline text-blue-600">
+                  <Link href={`/products/${item.productId}`} className="hover:underline text-slate-900">
                     {item.productNameSnapshot}
                   </Link>
                 </td>

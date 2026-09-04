@@ -19,7 +19,7 @@ export default async function RevenueLeaksPage() {
     value: l.affectedRevenue,
     formattedValue: `₹${(l.affectedRevenue / 100).toLocaleString("en-IN")}`,
     secondaryValue: `Est. ₹${(l.estimatedRecoverableRevenue / 100).toLocaleString("en-IN")} recoverable`,
-    color: l.severity === "CRITICAL" ? "#ef4444" : "#f59e0b"
+    color: l.severity === "CRITICAL" ? "#09090b" : "#52525b"
   }));
 
   return (
@@ -28,7 +28,7 @@ export default async function RevenueLeaksPage() {
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="bg-red-100 text-red-800 text-xs px-2.5 py-0.5 rounded-full font-bold border border-red-200">
+            <span className="bg-zinc-800 text-zinc-100 text-xs px-2.5 py-0.5 rounded-full font-bold border border-zinc-700">
               Systemic Risk Diagnostic
             </span>
             <span className="text-xs text-slate-500">Ranked by Financial Impact</span>
@@ -61,15 +61,15 @@ export default async function RevenueLeaksPage() {
             >
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-3">
-                  <span className={`w-3 h-3 rounded-full ${leak.severity === "CRITICAL" ? "bg-red-500 animate-pulse" : "bg-amber-500"}`}></span>
+                  <span className={`w-3 h-3 rounded-full ${leak.severity === "CRITICAL" ? "bg-zinc-900 animate-pulse" : "bg-zinc-500"}`}></span>
                   <h3 className="text-lg font-bold text-slate-900">{leak.title}</h3>
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
                     {leak.type.replace(/_/g, " ")}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200">
-                    {(Number(leak.confidence ?? 0.8) * 100).toFixed(0)}% Confidence
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-zinc-100 text-black border border-zinc-300">
+                    {isNaN(Number(leak.confidence)) ? leak.confidence : `${Math.round(Number(leak.confidence || 0.8) * 100)}%`} Confidence
                   </span>
                 </div>
               </div>
@@ -83,10 +83,10 @@ export default async function RevenueLeaksPage() {
 
                 <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">HOW MUCH</span>
-                  <span className="font-bold text-red-600 text-base block">
+                  <span className="font-bold text-slate-900 text-base block">
                     ₹{(leak.affectedRevenue / 100).toLocaleString("en-IN")}
                   </span>
-                  <span className="text-green-700 text-[11px] block mt-0.5">
+                  <span className="text-slate-500 text-[11px] block mt-0.5">
                     Est. ₹{(leak.estimatedRecoverableRevenue / 100).toLocaleString("en-IN")} recoverable
                   </span>
                 </div>

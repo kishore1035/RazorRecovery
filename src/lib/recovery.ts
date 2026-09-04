@@ -137,6 +137,7 @@ export const RecoveryAnalysisService = {
         "diagnosisConfidence": 0.0 to 1.0,
         "recoveryProbability": 0.0 to 1.0,
         "recommendedAction": "NO_ACTION" | "PAYMENT_LINK" | "RETRY" | "PAYMENT_LINK_WITH_VOUCHER",
+        "recommendedDiscountPercentage": integer (0 to 15, only if using voucher, default 0),
         "reasoning": "Short string",
         "alternatives": [
           {
@@ -224,7 +225,13 @@ export const RecoveryAnalysisService = {
 
       if (!hasSelected) {
         const predictedGross = recCase.riskAmount;
-        const predictedIncentive = decisionData.recommendedAction.includes("VOUCHER") ? Math.min(50000, Math.round(predictedGross * 0.1)) : 0;
+        let discountPercentage = decisionData.recommendedDiscountPercentage || 0;
+        if (discountPercentage > 15) discountPercentage = 15; // Hard limit to 15%
+        
+        const predictedIncentive = decisionData.recommendedAction.includes("VOUCHER") 
+          ? Math.round(predictedGross * (discountPercentage / 100)) 
+          : 0;
+          
         const net = predictedGross - predictedIncentive;
         if (net > highestNetRecovery) highestNetRecovery = net;
 

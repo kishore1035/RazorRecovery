@@ -4,7 +4,8 @@ import { RazorpayService } from "@/lib/razorpay";
 import Link from "next/link";
 
 export default async function RecoveriesPage() {
-  await RazorpayService.syncLiveTransactions();
+  // Fire and forget to avoid blocking page load
+  RazorpayService.syncLiveTransactions().catch(console.error);
 
   const data = await withTenant(async (merchantId) => {
     const stores = await prisma.store.findMany({ where: { merchantId }, select: { id: true, name: true } });

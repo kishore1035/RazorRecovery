@@ -97,6 +97,10 @@ export function NewPreferenceModal() {
                     <option value="PAYMENT_LINK">Payment Link</option>
                     <option value="PAYMENT_LINK_WITH_VOUCHER">Payment Link + Voucher</option>
                     <option value="RETRY">Silent Retry</option>
+                    <option value="WHATSAPP_REMINDER">WhatsApp Reminder</option>
+                    <option value="EMAIL_REMINDER">Email Reminder</option>
+                    <option value="CALL_CUSTOMER">Call Customer</option>
+                    <option value="ESCALATE_TO_HUMAN">Escalate to Human Agent</option>
                   </select>
                 </div>
 
@@ -112,6 +116,10 @@ export function NewPreferenceModal() {
                     <option value="PAYMENT_LINK_WITH_VOUCHER">Payment Link + Voucher</option>
                     <option value="NO_ACTION">No Action</option>
                     <option value="RETRY">Silent Retry</option>
+                    <option value="WHATSAPP_REMINDER">WhatsApp Reminder</option>
+                    <option value="EMAIL_REMINDER">Email Reminder</option>
+                    <option value="CALL_CUSTOMER">Call Customer</option>
+                    <option value="ESCALATE_TO_HUMAN">Escalate to Human Agent</option>
                   </select>
                 </div>
               </div>

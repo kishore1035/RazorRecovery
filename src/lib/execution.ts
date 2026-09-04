@@ -62,21 +62,42 @@ export const RecoveryExecutionService = {
 
     try {
       if (nextStep.actionType === "PAYMENT_LINK") {
-        // Reuse existing active payment link or create new
+        const stepMetadata = nextStep.metadata ? JSON.parse(nextStep.metadata) : {};
+        const discountAmount = stepMetadata.discountAmount || 0;
+
+        // If there's a discount, we must not reuse an existing non-discounted link.
+        // For simplicity, always check if we can reuse, but if discountAmount > 0 we create fresh.
         const existingLink = await prisma.paymentLink.findFirst({
           where: { orderId: plan.recoveryCase.orderId, status: { not: "CANCELLED" } }
         });
 
-        let plink = existingLink;
+        let plink = discountAmount === 0 ? existingLink : null;
         if (!plink) {
-          const description = `Recovery Payment for ${productName}`;
+          const finalAmount = Math.max(100, plan.recoveryCase.order.total - discountAmount);
+          const description = discountAmount > 0 
+            ? `Special Offer: Recovery Payment for ${productName}`
+            : `Recovery Payment for ${productName}`;
+            
           plink = await RazorpayService.createPaymentLink(
             plan.recoveryCase.orderId,
-            plan.recoveryCase.order.total,
+            finalAmount,
             plan.recoveryCase.customer.email || "test@example.com",
             plan.recoveryCase.customer.phone || "+919000000000",
             description
           );
+
+          if (discountAmount > 0) {
+            const voucherCode = `REC-${plan.recoveryCase.customer.id.substring(0, 4).toUpperCase()}-${Math.floor(Math.random() * 10000)}`;
+            await prisma.voucher.create({
+              data: {
+                storeId: plan.recoveryCase.storeId,
+                code: voucherCode,
+                discountType: "FIXED",
+                discountValue: discountAmount,
+                status: "EXHAUSTED", // Directly applied, so user doesn't need to copy it
+              }
+            });
+          }
         }
 
         await prisma.recoveryAction.create({
@@ -101,6 +122,8 @@ export const RecoveryExecutionService = {
           actionType: "PAYMENT_LINK",
           amount: plan.recoveryCase.order.total,
           caseId: plan.recoveryCaseId,
+          orderId: plan.recoveryCase.order.id,
+          discountAmount: discountAmount > 0 ? discountAmount : undefined,
           appBaseUrl
         });
 

@@ -57,6 +57,17 @@ export const NtfyService = {
       }
 
       console.log(`[NtfyService] Push sent → topic=${NTFY_TOPIC} | ${msg.title}`);
+
+      // Also ping the local Kali desktop
+      try {
+        const { exec } = require("child_process");
+        const safeTitle = msg.title.replace(/"/g, '\\"');
+        const safeMessage = msg.message.replace(/"/g, '\\"');
+        exec(`notify-send "${safeTitle}" "${safeMessage}"`);
+      } catch (e) {
+        // ignore errors if notify-send fails
+      }
+
       return true;
     } catch (err) {
       console.error("[NtfyService] Push error:", err);
@@ -90,14 +101,24 @@ export const NtfyService = {
     actionType: string;
     amount: number;
     caseId: string;
+    orderId?: string;
+    discountAmount?: number;
     appBaseUrl?: string;
   }) {
-    const amountRs = (opts.amount / 100).toLocaleString("en-IN");
+    const finalAmount = opts.amount - (opts.discountAmount || 0);
+    const amountRs = (finalAmount / 100).toLocaleString("en-IN");
+    const discountRs = opts.discountAmount ? (opts.discountAmount / 100).toLocaleString("en-IN") : null;
+    
+    let message = `Customer: ${opts.customerName || "Customer"}\nOrder: #${opts.orderId?.slice(0, 8) || "Unknown"}\nPayment: ₹${amountRs}`;
+    if (discountRs) {
+       message += `\nAI Voucher Applied: ₹${discountRs}`;
+    }
+
     return this.send({
-      title: `Recovery Action Sent — ₹${amountRs}`,
-      message: `RazorRecovery dispatched "${opts.actionType.replace(/_/g, " ")}" to ${opts.customerName || "customer"} for ₹${amountRs}.`,
-      priority: "default",
-      tags: ["envelope"],
+      title: discountRs ? `AI Issued ₹${discountRs} Voucher 🎁` : `Recovery Link Sent — ₹${amountRs}`,
+      message,
+      priority: "high",
+      tags: ["apple", "credit_card"],
       actionUrl: opts.appBaseUrl ? `${opts.appBaseUrl}/recoveries/${opts.caseId}` : undefined,
       actionLabel: "View Case",
     });

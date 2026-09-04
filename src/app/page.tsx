@@ -22,9 +22,7 @@ export default async function OverviewPage({
     return (
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-sm border border-zinc-200 mx-auto mt-12">
         <div className="mb-8 text-center">
-          <div className="w-12 h-12 rounded-xl bg-zinc-800 flex items-center justify-center mx-auto mb-4 shadow-2xs">
-            <span className="text-white font-bold text-xl">R</span>
-          </div>
+          <img src="/logo.png" alt="RazorRecovery Logo" className="h-12 w-auto object-contain mx-auto mb-4" />
           <h1 className="text-2xl font-semibold text-black tracking-tight">Welcome back</h1>
           <p className="text-sm text-zinc-500 mt-2">Sign in to your RazorRecovery workspace</p>
         </div>
@@ -41,6 +39,11 @@ export default async function OverviewPage({
             Sign In
           </button>
         </form>
+        <div className="mt-8 text-center border-t border-zinc-100 pt-6">
+          <p className="text-[10px] text-zinc-400 max-w-xs mx-auto leading-relaxed">
+            Disclaimer: The "RazorRecovery" name and logo are used strictly for thematic purposes. This is an independent submission for the Razorpay Buildathon, not an official Razorpay product.
+          </p>
+        </div>
       </div>
     );
   }
@@ -90,24 +93,23 @@ export default async function OverviewPage({
 
   const { health, trend, strategyPerf, paymentHealth, recentCases, activeLeaks, memories } = data;
 
-  // Format trend series with distinct shades of black & line styles for maximum readability
   const trendSeries = [
     {
       name: "Revenue at Risk",
-      color: "#09090b", // Pitch Black
-      dashStyle: "solid",
+      color: "#52525b", // Zinc-600
+      dashStyle: "dashed",
       data: trend.map(t => ({ label: t.label, value: t.risk }))
     },
     {
       name: "Gross Recovered",
-      color: "#71717a", // Slate Gray
-      dashStyle: "dashed",
+      color: "#a1a1aa", // Zinc-400
+      dashStyle: "solid",
       data: trend.map(t => ({ label: t.label, value: t.gross }))
     },
     {
       name: "Net Recovered Revenue",
-      color: "#27272a", // Dark Charcoal Ink
-      dashStyle: "dotted",
+      color: "#047857", // Emerald-700 (Still premium, but distinct)
+      dashStyle: "solid",
       data: trend.map(t => ({ label: t.label, value: t.net }))
     }
   ];

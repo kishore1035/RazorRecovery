@@ -31,7 +31,7 @@ export function SidebarNav() {
         { href: "/insights/leaks", label: "Revenue Leaks" },
         { href: "/insights/memory", label: "Recovery Memory" },
         { href: "/recovery-lab", label: "Recovery Lab (A/B)" },
-        { href: "/copilot", label: "Copilot" },
+        { href: "/copilot", label: "Moxy AI" },
       ]
     },
     {

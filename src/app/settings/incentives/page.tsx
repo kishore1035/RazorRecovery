@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/db";
 import { withTenant } from "@/lib/auth";
+import Link from "next/link";
+import { revalidatePath } from "next/cache";
+import { VoucherActionButtons } from "./VoucherActionButtons";
 
 export default async function IncentivesPage() {
   const vouchers = await withTenant(async (merchantId) => {
@@ -10,6 +13,13 @@ export default async function IncentivesPage() {
     });
   });
 
+  async function toggleVoucher(id: string, currentStatus: string) {
+    "use server";
+    const newStatus = currentStatus === "ACTIVE" ? "PAUSED" : "ACTIVE";
+    await prisma.voucher.update({ where: { id }, data: { status: newStatus } });
+    revalidatePath("/settings/incentives");
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
@@ -17,9 +27,9 @@ export default async function IncentivesPage() {
           <h1 className="text-2xl font-semibold text-slate-900">Incentives & Vouchers</h1>
           <p className="text-sm text-slate-500 mt-1">Manage discounts AI can offer during revenue recovery.</p>
         </div>
-        <button className="bg-slate-900 text-white px-4 py-2 rounded-lg font-medium text-sm shadow-sm hover:bg-slate-800">
+        <Link href="/settings/incentives/new" className="bg-slate-900 text-white px-4 py-2 rounded-lg font-medium text-sm shadow-sm hover:bg-slate-800">
           Create Voucher
-        </button>
+        </Link>
       </div>
       
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
@@ -50,22 +60,21 @@ export default async function IncentivesPage() {
                   Min: {v.minimumOrderValue ? `₹${(v.minimumOrderValue / 100).toFixed(2)}` : "None"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    v.status === "ACTIVE" ? "bg-green-100 text-green-800" :
-                    v.status === "PAUSED" ? "bg-yellow-100 text-yellow-800" :
-                    v.status === "EXHAUSTED" ? "bg-red-100 text-red-800" :
-                    "bg-slate-100 text-slate-800"
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                    v.status === "ACTIVE" ? "bg-slate-900 text-white border-transparent" :
+                    v.status === "PAUSED" ? "bg-slate-100 text-slate-700 border-transparent" :
+                    v.status === "EXHAUSTED" ? "bg-white text-slate-900 border-slate-300" :
+                    "bg-slate-100 text-slate-700 border-transparent"
                   }`}>
                     {v.status}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
-                  <button className="text-blue-600 hover:underline mr-4">Edit</button>
-                  {v.status === "ACTIVE" ? (
-                    <button className="text-yellow-600 hover:underline">Pause</button>
-                  ) : (
-                    <button className="text-green-600 hover:underline">Enable</button>
-                  )}
+                  <VoucherActionButtons 
+                    voucherId={v.id} 
+                    status={v.status} 
+                    onToggle={toggleVoucher} 
+                  />
                 </td>
               </tr>
             ))}

@@ -30,7 +30,7 @@ export default async function ProductsPage() {
                       href={product.productUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-blue-600 hover:underline flex items-center gap-1 mt-0.5"
+                      className="text-[11px] font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 mt-0.5 transition-colors"
                     >
                       <span>↗ Store Product Link</span>
                     </a>
@@ -40,9 +40,9 @@ export default async function ProductsPage() {
                   {product.sku || "N/A"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    product.inventoryStatus === "IN_STOCK" ? "bg-green-100 text-green-800" :
-                    "bg-slate-100 text-slate-800"
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wider uppercase ${
+                    product.inventoryStatus === "IN_STOCK" ? "bg-zinc-100 text-black border-zinc-300" :
+                    "bg-slate-50 text-slate-400 border-slate-200"
                   }`}>
                     {product.inventoryStatus.replace("_", " ")}
                   </span>

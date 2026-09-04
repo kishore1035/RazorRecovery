@@ -25,8 +25,8 @@ export default function CreatePaymentLinkPage() {
     productUrl: "https://store.example.com/products/sony-wh-1000xm5",
     amount: "29990",
     description: "Purchase: Sony WH-1000XM5 Headphones",
-    customerName: "Arjun Singh",
-    customerEmail: "arjun.s@example.com",
+    customerName: "Kishore P",
+    customerEmail: "pkishore530@gmail.com",
     customerPhone: "+919876543210",
     notifySms: true,
     notifyEmail: false,
@@ -84,8 +84,8 @@ export default function CreatePaymentLinkPage() {
       productUrl: "https://store.example.com/products/sony-wh-1000xm5",
       amount: "29990",
       description: "Purchase: Sony WH-1000XM5 Headphones",
-      customerName: "Arjun Singh",
-      customerEmail: "arjun.s@example.com",
+      customerName: "Kishore P",
+      customerEmail: "pkishore530@gmail.com",
       customerPhone: "+919876543210",
       notifySms: true,
       notifyEmail: false,
@@ -352,7 +352,7 @@ export default function CreatePaymentLinkPage() {
                 <input
                   type="text"
                   required
-                  placeholder="Arjun Singh"
+                  placeholder="Kishore P"
                   value={form.customerName}
                   onChange={e => set("customerName", e.target.value)}
                   className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
@@ -366,7 +366,7 @@ export default function CreatePaymentLinkPage() {
                   <span className="px-3 py-2 text-zinc-400 text-sm">✉</span>
                   <input
                     type="email"
-                    placeholder="arjun.s@example.com"
+                    placeholder="pkishore530@gmail.com"
                     value={form.customerEmail}
                     onChange={e => set("customerEmail", e.target.value)}
                     className="flex-1 py-2 pr-3 text-sm focus:outline-none"

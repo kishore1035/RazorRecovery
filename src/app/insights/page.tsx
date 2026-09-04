@@ -30,7 +30,7 @@ export default async function InsightsPage() {
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-bold border border-blue-200">
+            <span className="bg-zinc-800 text-zinc-100 text-xs px-2.5 py-0.5 rounded-full font-bold border border-zinc-700">
               Systemic Intelligence
             </span>
             <span className="text-xs text-slate-500">Evidence-Backed Financial Insights</span>
@@ -41,8 +41,8 @@ export default async function InsightsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-            data.healthScore === "Critical" ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
+          <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+            data.healthScore === "Critical" ? "bg-zinc-900 text-white border-zinc-900" : "bg-zinc-100 text-black border-zinc-300"
           }`}>
             Status: {data.healthScore}
           </span>
@@ -51,21 +51,21 @@ export default async function InsightsPage() {
 
       {/* Sub-navigation Links */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Link href="/insights/leaks" className="bg-white p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition-all text-xs font-bold text-slate-900 flex justify-between items-center shadow-2xs">
+        <Link href="/insights/leaks" className="bg-white p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all text-xs font-bold text-slate-900 flex justify-between items-center shadow-2xs">
           <span>Revenue Leaks ({data.activeLeaks.length})</span>
-          <span className="text-blue-600">Explore →</span>
+          <span className="text-zinc-600 group-hover:text-black">Explore →</span>
         </Link>
-        <Link href="/insights/payment-health" className="bg-white p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition-all text-xs font-bold text-slate-900 flex justify-between items-center shadow-2xs">
+        <Link href="/insights/payment-health" className="bg-white p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all text-xs font-bold text-slate-900 flex justify-between items-center shadow-2xs">
           <span>Payment Health</span>
-          <span className="text-blue-600">Monitor →</span>
+          <span className="text-zinc-600 group-hover:text-black">Monitor →</span>
         </Link>
-        <Link href="/insights/checkout-health" className="bg-white p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition-all text-xs font-bold text-slate-900 flex justify-between items-center shadow-2xs">
+        <Link href="/insights/checkout-health" className="bg-white p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all text-xs font-bold text-slate-900 flex justify-between items-center shadow-2xs">
           <span>Checkout Funnel</span>
-          <span className="text-blue-600">Track →</span>
+          <span className="text-zinc-600 group-hover:text-black">Track →</span>
         </Link>
-        <Link href="/insights/memory" className="bg-white p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition-all text-xs font-bold text-slate-900 flex justify-between items-center shadow-2xs">
+        <Link href="/insights/memory" className="bg-white p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all text-xs font-bold text-slate-900 flex justify-between items-center shadow-2xs">
           <span>Recovery Memory ({data.memories.length})</span>
-          <span className="text-blue-600">Learn →</span>
+          <span className="text-zinc-600 group-hover:text-black">Learn →</span>
         </Link>
       </div>
 
@@ -83,18 +83,18 @@ export default async function InsightsPage() {
               <div key={leak.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
                 <div className="flex justify-between items-start border-b border-slate-100 pb-3">
                   <div>
-                    <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider">Active Revenue Risk</span>
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Active Revenue Risk</span>
                     <h3 className="text-lg font-bold text-slate-900 mt-0.5">{leak.title}</h3>
                   </div>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200">
-                    {(Number(leak.confidence ?? 0.8) * 100).toFixed(0)}% Confidence
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-zinc-100 text-black border border-zinc-300">
+                    {isNaN(Number(leak.confidence)) ? leak.confidence : `${Math.round(Number(leak.confidence || 0.8) * 100)}%`} Confidence
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
                   <div>
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Financial Impact</span>
-                    <span className="font-bold text-red-600 text-base block">
+                    <span className="font-bold text-slate-900 text-base block">
                       ₹{(leak.affectedRevenue / 100).toLocaleString("en-IN")}
                     </span>
                     <span className="text-slate-500 text-[11px] block">Est. ₹{(leak.estimatedRecoverableRevenue / 100).toLocaleString("en-IN")} recoverable</span>
@@ -112,7 +112,7 @@ export default async function InsightsPage() {
 
                   <div>
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Recommended Action</span>
-                    <span className="font-semibold text-blue-700 block">{leak.recommendedAction}</span>
+                    <span className="font-semibold text-slate-800 block">{leak.recommendedAction}</span>
                   </div>
                 </div>
               </div>
@@ -122,7 +122,7 @@ export default async function InsightsPage() {
               <div key={mem.id} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
                 <div className="flex justify-between items-start border-b border-slate-100 pb-3">
                   <div>
-                    <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wider">Empirical Recovery Memory</span>
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Empirical Recovery Memory</span>
                     <h3 className="text-base font-bold text-slate-900 mt-0.5">
                       Segment: {mem.segmentKey} ({mem.segmentType})
                     </h3>
@@ -140,7 +140,7 @@ export default async function InsightsPage() {
 
                   <div>
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Recovery Rate</span>
-                    <span className="font-bold text-green-600 text-sm block">{(mem.recoveryRate * 100).toFixed(0)}%</span>
+                    <span className="font-bold text-slate-900 text-sm block">{(mem.recoveryRate * 100).toFixed(0)}%</span>
                   </div>
 
                   <div>

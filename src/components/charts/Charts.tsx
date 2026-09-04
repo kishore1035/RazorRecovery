@@ -138,30 +138,63 @@ export function LineChart({
           );
         })}
 
-        {/* Lines */}
+        {/* Lines and Area Fills */}
         {series.map((s, idx) => {
-          const pointsStr = s.data.map((d, i) => `${getX(i)},${getY(d.value)}`).join(" ");
           const defaultStyle = seriesStyles[idx % seriesStyles.length];
           const color = s.color || defaultStyle.color;
           const dash = s.dashStyle === "dashed" ? "6 4" : s.dashStyle === "dotted" ? "2 3" : (s.dashStyle === "solid" ? undefined : defaultStyle.dash);
           const strokeWidth = defaultStyle.strokeWidth;
 
+          // Generate smooth bezier path
+          let d = "";
+          let fillD = "";
+          s.data.forEach((pt, i) => {
+            const x = getX(i);
+            const y = getY(pt.value);
+            if (i === 0) {
+              d += `M ${x},${y}`;
+              fillD += `M ${x},${padding.top + graphHeight} L ${x},${y}`;
+            } else {
+              const prevX = getX(i - 1);
+              const prevY = getY(s.data[i - 1].value);
+              const cx1 = prevX + (x - prevX) / 3;
+              const cy1 = prevY;
+              const cx2 = prevX + (x - prevX) / 1.5;
+              const cy2 = y;
+              d += ` C ${cx1},${cy1} ${cx2},${cy2} ${x},${y}`;
+              fillD += ` C ${cx1},${cy1} ${cx2},${cy2} ${x},${y}`;
+            }
+          });
+          
+          if (fillD) {
+             fillD += ` L ${getX(pointCount - 1)},${padding.top + graphHeight} Z`;
+          }
+
           return (
             <g key={s.name}>
-              <polyline
+              {s.dashStyle === "solid" && (
+                <path
+                  d={fillD}
+                  fill={color}
+                  fillOpacity="0.05"
+                  className="transition-all duration-300"
+                />
+              )}
+              <path
+                d={d}
                 fill="none"
                 stroke={color}
                 strokeWidth={strokeWidth}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeDasharray={dash}
-                points={pointsStr}
+                className="transition-all duration-300"
               />
-              {s.data.map((d, i) => (
+              {s.data.map((pt, i) => (
                 <circle
                   key={i}
                   cx={getX(i)}
-                  cy={getY(d.value)}
+                  cy={getY(pt.value)}
                   r={hoveredIdx === i ? 5 : 3.5}
                   fill="#ffffff"
                   stroke={color}
