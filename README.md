@@ -1,4 +1,4 @@
-# 🚀 RazorRecovery OS
+# 🚀 RazorRecovery 
 **Built for the Razorpay Buildathon**
 
 > **Disclaimer:** The name "RazorRecovery" and the accompanying blue logo are used strictly for thematic purposes as this is a conceptual product built exclusively for the Razorpay Buildathon. This project is an independent hackathon submission and is not an official Razorpay product.
