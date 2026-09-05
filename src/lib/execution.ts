@@ -2,9 +2,28 @@ import { prisma } from "./db";
 import { RecoveryStopService } from "./plan";
 import { RazorpayService } from "./razorpay";
 import { NtfyService } from "./ntfy";
+import { SMSService } from "./sms";
 
 export const NotificationProvider = {
-  async send(caseId: string, customerId: string, channel: string, content: string) {
+  async send(caseId: string, customerId: string, channel: string, content: string, phoneNumber?: string | null) {
+    let provider = "NTFY";
+    let providerMessageId = `ntfy_${Date.now()}`;
+    let deliveryStatus = "DISPATCHED";
+
+    if (channel === "SMS" && phoneNumber) {
+      const smsResult = await SMSService.send({
+        phoneNumber,
+        message: content,
+        customerId,
+        recoveryCaseId: caseId
+      });
+      provider = smsResult.provider;
+      providerMessageId = `sms_${Date.now()}`;
+      deliveryStatus = smsResult.success
+        ? (smsResult.provider === "SIMULATED" ? "SIMULATED" : "DELIVERED")
+        : "FAILED";
+    }
+
     // Save notification record to DB (always)
     const notification = await prisma.notification.create({
       data: {
@@ -12,15 +31,15 @@ export const NotificationProvider = {
         customerId,
         channel,
         message: content,
-        status: "SENT",
-        provider: "NTFY",
-        providerMessageId: `ntfy_${Date.now()}`,
-        deliveryStatus: "DISPATCHED",
+        status: deliveryStatus === "FAILED" ? "FAILED" : "SENT",
+        provider,
+        providerMessageId,
+        deliveryStatus,
         sentAt: new Date(),
       }
     });
 
-    console.log(`[NotificationProvider] -> ${channel}: ${content}`);
+    console.log(`[NotificationProvider] -> ${channel} (${provider}): ${content}`);
     return notification;
   }
 };
@@ -140,17 +159,24 @@ export const RecoveryExecutionService = {
         });
         if (existingLink?.shortUrl) linkUrl = existingLink.shortUrl;
 
-        let content = `Hey ${plan.recoveryCase.customer.name || "there"}, your payment for ${plan.recoveryCase.store.name} failed. Complete it here: ${linkUrl || "your payment link"}`;
-        
+        const customer = plan.recoveryCase.customer;
+        const customerName = customer.name && customer.name !== "Customer" ? customer.name : "there";
+        const customerPhone = customer.phone;
+        const amountRs = (plan.recoveryCase.order.total / 100).toLocaleString("en-IN");
+
+        let content = "";
         if (metadata.useVoucher) {
-          content = `Hey ${plan.recoveryCase.customer.name || "there"}, complete your payment for ${plan.recoveryCase.store.name} and get a discount! Use link: ${linkUrl || "your payment link"}`;
+          content = `Hey ${customerName}! 🎁 We noticed your payment of ₹${amountRs} for "${productName}" failed. Good news: your order is reserved and we applied an exclusive discount!\n\n👉 Tap here to complete your purchase:\n${linkUrl || "your payment link"}\n\n⚡ Valid for 24 hours only. Don't miss out!`;
+        } else {
+          content = `Oh no, ${customerName}! 😔 We just saw your payment of ₹${amountRs} for "${productName}" failed.\n\nDon't worry, your cart is safely reserved! To try again and complete your purchase, click this link:\n${linkUrl || "your payment link"}\n\n⚡ Fast & secure 1-click checkout. Let's get this delivered to you!`;
         }
 
         const notifyResult = await NotificationProvider.send(
           plan.recoveryCaseId,
           plan.recoveryCase.customerId,
           "SMS",
-          content
+          content,
+          customerPhone
         );
 
         await prisma.recoveryAction.create({

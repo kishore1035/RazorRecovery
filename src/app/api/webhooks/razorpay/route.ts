@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { RecoveryEligibilityService, RecoveryAnalysisService } from "@/lib/recovery";
 import { RecoveryOutcomeService } from "@/lib/outcome";
 import { NtfyService } from "@/lib/ntfy";
+import { SMSService } from "@/lib/sms";
 
 export async function POST(req: Request) {
   try {
@@ -153,29 +154,96 @@ export async function POST(req: Request) {
             const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL;
             const orderItems = await prisma.orderItem.findFirst({ where: { orderId: order.id } });
             const productName = orderItems?.productNameSnapshot || "order item";
-            const customer = await prisma.customer.findUnique({ where: { id: order.customerId } });
+            let customer = await prisma.customer.findUnique({ where: { id: order.customerId } });
 
-            // Fire-and-forget: don't block webhook response
+            // Extract contact from Razorpay payment entity if customer phone is missing
+            const paymentContact = paymentEntity.contact ? String(paymentEntity.contact).trim() : null;
+            if (customer && !customer.phone && paymentContact) {
+              customer = await prisma.customer.update({
+                where: { id: customer.id },
+                data: { phone: paymentContact }
+              });
+            }
+            const customerPhone = customer?.phone || paymentContact;
+            const customerName =
+              (paymentEntity.notes && (paymentEntity.notes.customer_name || paymentEntity.notes.name)) ||
+              customer?.name ||
+              "there";
+
+            // Resolve or dynamically create retry payment link
+            let retryPaymentUrl: string | undefined = undefined;
+            const existingLink = await prisma.paymentLink.findFirst({
+              where: { orderId: order.id, status: { not: "CANCELLED" } },
+              orderBy: { createdAt: "desc" }
+            });
+
+            if (existingLink?.shortUrl) {
+              retryPaymentUrl = existingLink.shortUrl;
+            } else if (payload.payload?.payment_link?.entity?.short_url) {
+              retryPaymentUrl = payload.payload.payment_link.entity.short_url;
+            } else if (customer?.email || customerPhone) {
+              try {
+                const newPlink = await RazorpayService.createPaymentLink(
+                  order.id,
+                  paymentEntity.amount || order.total,
+                  customer?.email || "customer@example.com",
+                  customerPhone || "+919000000000",
+                  `Retry payment for ${productName}`
+                );
+                retryPaymentUrl = newPlink.shortUrl || undefined;
+              } catch (linkErr) {
+                console.warn("[Webhook] Could not create payment link on the fly:", linkErr);
+              }
+            }
+
+            if (!retryPaymentUrl) {
+              const base = appBaseUrl || "http://localhost:3000";
+              retryPaymentUrl = `${base}/checkout-demo.html?orderId=${order.razorpayOrderId || order.id}&amount=${paymentEntity.amount}&product=${encodeURIComponent(productName)}`;
+            }
+
+            // Detect recovery case
+            let recCase: any = null;
+            try {
+              recCase = await RecoveryEligibilityService.detectPaymentFailure(order.id, paymentEntity.id);
+            } catch (detErr) {
+              console.error("Recovery detection failed:", detErr);
+            }
+
+            // Merchant push notification via Ntfy
             NtfyService.paymentFailed({
-              customerName: customer?.name || "Customer",
+              customerName: customerName,
               productName,
               amount: paymentEntity.amount,
               method: paymentEntity.method || "unknown",
-              caseId: "pending", // will be updated after detection
+              caseId: recCase?.id || "pending",
               appBaseUrl
             }).catch(console.error);
 
-            // Queue recovery detection asynchronously
-            setTimeout(async () => {
-              try {
-                const recCase = await RecoveryEligibilityService.detectPaymentFailure(order.id, paymentEntity.id);
-                if (recCase && recCase.status === "DETECTED") {
+            // Send motivational SMS to customer with retry link (Razorpay style)
+            if (customerPhone) {
+              SMSService.paymentFailed({
+                customerName: customerName,
+                phoneNumber: customerPhone,
+                amount: paymentEntity.amount,
+                productName,
+                failureReason: paymentEntity.error_description,
+                paymentLinkUrl: retryPaymentUrl,
+                appBaseUrl,
+                customerId: customer?.id,
+                recoveryCaseId: recCase?.id
+              }).catch(console.error);
+            }
+
+            // Queue recovery analysis asynchronously if detected
+            if (recCase && recCase.status === "DETECTED") {
+              setTimeout(async () => {
+                try {
                   await RecoveryAnalysisService.triggerAnalysis(recCase.id).catch(console.error);
+                } catch (e) {
+                  console.error("Recovery analysis failed:", e);
                 }
-              } catch (e) {
-                console.error("Recovery detection failed:", e);
-              }
-            }, 0);
+              }, 0);
+            }
           }
       } else if (eventName === "payment_link.paid") {
         const linkEntity = payload.payload.payment_link.entity;

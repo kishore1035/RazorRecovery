@@ -108,10 +108,12 @@ export const RazorpayService = {
     return key_id.startsWith("rzp_live_");
   },
 
-  async syncLiveTransactions() {
+  async syncLiveTransactions(targetStoreId?: string) {
     try {
       const rzp = getRazorpayClient();
-      const store = await prisma.store.findFirst();
+      const store = targetStoreId
+        ? await prisma.store.findUnique({ where: { id: targetStoreId } })
+        : await prisma.store.findFirst();
       if (!store) return;
       const storeId = store.id;
 

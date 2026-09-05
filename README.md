@@ -43,6 +43,23 @@ When a customer's payment fails at checkout, RazorRecovery steps in instantly:
 
 ---
 
+## ⚙️ Environment Setup & API Keys
+
+> ⚠️ **Kindly Use Your Own Keys:** The `.env` file is excluded from git for credential security. To run RazorRecovery with your own Razorpay test account and AI features, set up your local environment:
+>
+> 1. Copy the sample environment template:
+>    ```bash
+>    cp .env.example .env
+>    ```
+> 2. Populate `.env` with your credentials:
+>    - **Razorpay API Keys:** (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`) — Generate from [Razorpay Dashboard → Settings → API Keys](https://dashboard.razorpay.com/app/keys).
+>    - **Razorpay Webhook Secret:** (`RAZORPAY_WEBHOOK_SECRET`) — Create a webhook in Razorpay Dashboard pointing to `https://<your-tunnel-url>/api/webhooks/razorpay` with events `payment.failed`, `order.paid`, `payment_link.paid`.
+>    - **AI Intelligence Key:** (`AI_PROVIDER_API_KEY`) — Your Groq, OpenAI, or Ollama endpoint key for counterfactual analysis and Copilot.
+>    - **SMS Recovery (Optional):** (`SMS_PROVIDER`, `TWILIO_*`) — Configure Twilio credentials for real-time customer SMS recovery links, or leave blank to use the built-in simulated console delivery.
+>    - **Push Notifications (Optional):** (`NTFY_TOPIC`) — Real-time merchant push notifications via [ntfy.sh](https://ntfy.sh).
+
+---
+
 ## 🎮 How to Demo / Test
 
 Because RazorRecovery is built for production, you cannot just test it with a standalone link. You must simulate a real e-commerce checkout loop.

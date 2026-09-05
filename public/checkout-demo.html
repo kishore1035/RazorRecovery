@@ -71,8 +71,25 @@
     };
     var rzp1 = new Razorpay(options);
     
-    rzp1.on('payment.failed', function (response){
-        alert("Payment Failed simulated! Intercepted by RazorRecovery AI. Redirecting to Recoveries dashboard...");
+    rzp1.on('payment.failed', async function (response){
+        const err = response.error || {};
+        try {
+          await fetch('/api/payments/fail', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              orderId: orderId,
+              paymentId: (err.metadata && err.metadata.payment_id) ? err.metadata.payment_id : ('pay_fail_' + Date.now()),
+              failureCode: err.code || 'BAD_REQUEST_PAYMENT_TIMED_OUT',
+              failureReason: err.description || err.reason || 'Payment failed at bank',
+              customerPhone: phone,
+              customerName: name
+            })
+          });
+        } catch (e) {
+          console.error("Failed to notify server of payment failure:", e);
+        }
+        alert("Payment Failed! Intercepted by RazorRecovery.\n📱 Motivational SMS with retry link sent to " + phone + "!");
         window.location.href = "/recoveries";
     });
     
